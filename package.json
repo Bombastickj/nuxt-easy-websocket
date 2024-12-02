@@ -1,0 +1,60 @@
+{
+  "name": "nuxt-easy-websocket",
+  "version": "1.1.0",
+  "description": "Easy WebSocket integration module for nuxt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bombastickj/nuxt-easy-websocket.git"
+  },
+  "license": "MIT",
+  "author": "Jonas Brussat, Alexander Führer",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "build": {
+    "externals": [
+      "#easy-websocket-client"
+    ]
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/types.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.14.1592",
+    "crossws": "latest",
+    "defu": "^6.1.4",
+    "knitwork": "^1.1.0"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.6.1",
+    "@nuxt/eslint-config": "^0.7.2",
+    "@nuxt/module-builder": "^0.8.4",
+    "@nuxt/schema": "^3.14.1592",
+    "@nuxt/test-utils": "^3.14.4",
+    "@types/node": "latest",
+    "changelogen": "^0.5.7",
+    "eslint": "^9.15.0",
+    "nuxt": "^3.14.1592",
+    "typescript": "latest",
+    "vitest": "^2.1.6",
+    "vue-tsc": "^2.1.10"
+  }
+}

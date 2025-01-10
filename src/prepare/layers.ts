@@ -40,15 +40,15 @@ export async function prepareLayers(
   for (const layer of _layers) {
     // Scan client and server events
     clientEvents.push(...await scanEvents(
-      path.join(nuxt.options.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir),
+      path.join(layer.config.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir),
       'Client',
     ))
     serverEvents.push(...await scanEvents(
-      path.join(nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir, '/events'),
+      path.join(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir, '/events'),
       'Server',
     ))
     serverConnection.push(...await scanEvents(
-      path.join(nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir),
+      path.join(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir),
       'ConnectionOpen',
     ))
   }

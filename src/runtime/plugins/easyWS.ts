@@ -10,6 +10,17 @@ export default defineNuxtPlugin((_nuxtApp) => {
   const url = (isSecure ? 'wss://' : 'ws://') + location.host + '/_ws'
   const socket = new WebSocket(url)
 
+  // Promise to track the open state of the socket
+  let socketOpenResolve: () => void
+  const socketOpenPromise = new Promise<void>((resolve) => {
+    socketOpenResolve = resolve
+  })
+
+  socket.addEventListener('open', () => {
+    console.log('[ClientSocket]:', 'open')
+    socketOpenResolve()
+  })
+
   socket.addEventListener('message', async (message) => {
     try {
       const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
@@ -31,14 +42,22 @@ export default defineNuxtPlugin((_nuxtApp) => {
   socket.addEventListener('close', () => {
     console.log('[ClientSocket]:', 'close')
   })
-  socket.addEventListener('open', () => {
-    console.log('[ClientSocket]:', 'open')
-  })
 
-  function send<T extends keyof EasyWSClientToServerEvents>(name: T, data?: EasyWSClientToServerEvents[T]) {
-    socket.send(
-      JSON.stringify({ name, data }),
-    )
+  async function send<T extends keyof EasyWSClientToServerEvents>(name: T, data?: EasyWSClientToServerEvents[T]) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({ name, data }),
+      )
+    }
+    else if (socket.readyState === WebSocket.CONNECTING) {
+      await socketOpenPromise
+      socket.send(
+        JSON.stringify({ name, data }),
+      )
+    }
+    else {
+      console.error('[ClientSocket]: Cannot send message, socket is not open.')
+    }
   }
 
   return {

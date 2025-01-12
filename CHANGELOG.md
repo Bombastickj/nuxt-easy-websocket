@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v2.0.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v1.2.1...v2.0.0)
+
+### 🚀 Enhancements
+
+- Add delimiter customization ([56720ae](https://github.com/Bombastickj/nuxt-easy-websocket/commit/56720ae))
+- Add builder watch hook for dynamic updates ([9eaa724](https://github.com/Bombastickj/nuxt-easy-websocket/commit/9eaa724))
+
+### 💅 Refactors
+
+- Consolidate import statements into an array ([c048435](https://github.com/Bombastickj/nuxt-easy-websocket/commit/c048435))
+- ⚠️  Improve WebSocket routing and structure ([eceb0be](https://github.com/Bombastickj/nuxt-easy-websocket/commit/eceb0be))
+
+### 🎨 Styles
+
+- Improve consistent indentation in route handlers ([6aa9a3c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/6aa9a3c))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Improve WebSocket routing and structure ([eceb0be](https://github.com/Bombastickj/nuxt-easy-websocket/commit/eceb0be))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v1.2.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v1.2.0...v1.2.1)

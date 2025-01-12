@@ -1,5 +1,5 @@
 import defu from 'defu'
-import { defineNuxtModule } from '@nuxt/kit'
+import { defineNuxtModule, updateTemplates } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
 import type { NuxtEasyWebSocketOptions } from './types'
 import { createContext } from './context'
@@ -35,5 +35,29 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     generateRoutes(ctx, _nuxt)
     generateClientEvents(ctx, _nuxt)
     generateServerEvents(ctx, _nuxt)
+
+    _nuxt.hook('builder:watch', async (event, path) => {
+      if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
+
+      ctx.clientRoutes = []
+      ctx.serverRoutes = []
+      ctx.serverConnection = []
+      ctx.watchingPaths = []
+
+      await prepareLayers(ctx, _nuxt)
+      generateRoutes(ctx, _nuxt)
+      generateClientEvents(ctx, _nuxt)
+      generateServerEvents(ctx, _nuxt)
+
+      updateTemplates({
+        filter: (t) => {
+          return [
+            'types/nuxt-easy-websocket-routes.d.ts',
+            'modules/nuxt-easy-websocket-client.ts',
+            'modules/nuxt-easy-websocket-server.ts',
+          ].includes(t.filename)
+        },
+      })
+    })
   },
 })

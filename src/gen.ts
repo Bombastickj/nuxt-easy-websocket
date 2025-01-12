@@ -49,7 +49,7 @@ import type { EasyWSClientEventGenerated } from '${typeImportPath}';
 ${clientRoutes.map(route => genImport(route.filePath, route.name, { singleQuotes: true })).join('\n')}
 
 export const clientRoutes: EasyWSClientEventGenerated<any>[] = [
-  ${clientRoutes.map(route => `{ name: '${route.routePath}', handler: ${route.name} }`).join(',\n')}
+  ${clientRoutes.map(route => `{ name: '${route.routePath}', handler: ${route.name} }`).join(',\n  ')}
 ]
 `
 

@@ -1,4 +1,4 @@
-import type { EasyWSServerPeer } from './server/routes/_ws'
+import type { EasyWSServerPeer } from './server/utils/EasyWSServerPeer'
 
 export type NuxtEasyWebSocketOptions = {
   /**
@@ -20,7 +20,9 @@ export type NuxtEasyWebSocketOptions = {
   delimiter: '/' | ':'
 }
 
-export type EasyWSEventRaw = { imports: string, exports: string, name: string }
+export type { EasyWSServerPeer }
+
+export type EasyWSRouteRaw = { filePath: string, routePath: string, name: string }
 
 // EasyWSClientEvent
 export interface EasyWSClientEvent<Request> {

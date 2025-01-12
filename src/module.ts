@@ -4,7 +4,7 @@ import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
 import type { NuxtEasyWebSocketOptions } from './types'
 import { createContext } from './context'
 import { prepareLayers } from './prepare/layers'
-import { generateClientEvents, generateServerEvents } from './gen'
+import { generateClientEvents, generateRoutes, generateServerEvents } from './gen'
 import { prepareRuntime } from './prepare/runtime'
 
 export * from './types'
@@ -32,6 +32,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     })
 
     await prepareLayers(ctx, _nuxt)
+    generateRoutes(ctx, _nuxt)
     generateClientEvents(ctx, _nuxt)
     generateServerEvents(ctx, _nuxt)
   },

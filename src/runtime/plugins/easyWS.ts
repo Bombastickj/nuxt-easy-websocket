@@ -1,6 +1,6 @@
 import { defineNuxtPlugin } from '#app'
-import { clientEvents } from '#easy-websocket-client'
-import type { EasyWSClientToServerEvents } from '#easy-websocket-server'
+import { clientRoutes } from '#nuxt-easy-websocket/client'
+import type { EasyWSServerRoutes } from '#nuxt-easy-websocket/routes'
 
 export default defineNuxtPlugin((_nuxtApp) => {
   // this plugin only works on client
@@ -26,7 +26,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
       const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
       console.log('[ClientSocket]:', message.data)
 
-      const eventModule = clientEvents.find(e => e.name === name)
+      const eventModule = clientRoutes.find(e => e.name === name)
       if (eventModule) {
         // Execute the handler associated with the event
         await eventModule.handler({ data })
@@ -43,7 +43,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
     console.log('[ClientSocket]:', 'close')
   })
 
-  async function send<T extends keyof EasyWSClientToServerEvents>(name: T, data?: EasyWSClientToServerEvents[T]) {
+  async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(
         JSON.stringify({ name, data }),

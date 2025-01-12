@@ -12,6 +12,12 @@ export type NuxtEasyWebSocketOptions = {
    * @default 'socket'
    */
   serverSrcDir: string
+
+  /**
+   * Change the default delimiter for client and server routes
+   * @default '/'
+   */
+  delimiter: '/' | ':'
 }
 
 export type EasyWSEventRaw = { imports: string, exports: string, name: string }

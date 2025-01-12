@@ -7,6 +7,8 @@ import { prepareLayers } from './prepare/layers'
 import { generateClientEvents, generateServerEvents } from './gen'
 import { prepareRuntime } from './prepare/runtime'
 
+export * from './types'
+
 export default defineNuxtModule<NuxtEasyWebSocketOptions>({
   meta: {
     name: NUXT_EASY_WEBSOCKET_MODULE_ID,
@@ -16,6 +18,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
   defaults: {
     serverSrcDir: 'socket',
     clientSrcDir: 'socket',
+    delimiter: '/',
   },
   async setup(_options, _nuxt) {
     const ctx = createContext(_options)

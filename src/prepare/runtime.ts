@@ -31,6 +31,10 @@ export function prepareRuntime({ resolver }: NuxtEasyWebSocketContext) {
       from: resolver.resolve('./runtime/server/composables/defineEasyWSEvent'),
       name: 'defineEasyWSEvent',
     },
+    {
+      from: resolver.resolve('./runtime/server/utils/easyWSConnections'),
+      name: 'easyWSConnections',
+    },
   ])
 
   // server websocket handler

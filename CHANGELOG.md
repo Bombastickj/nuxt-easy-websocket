@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v2.1.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.0.0...v2.1.0)
+
+### 🚀 Enhancements
+
+- Add easyWSConnections utility for WebSockets ([4452c71](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4452c71))
+
+### 🩹 Fixes
+
+- Add reconnection logic with error handling ([259f4d9](https://github.com/Bombastickj/nuxt-easy-websocket/commit/259f4d9))
+
+### 💅 Refactors
+
+- Enhance file path handling ([a4e3f08](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a4e3f08))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.0.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v1.2.1...v2.0.0)

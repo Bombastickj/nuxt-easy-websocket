@@ -1,6 +1,6 @@
 import fs from 'node:fs'
-import path from 'node:path'
-import { findExportNames, sanitizeFilePath } from 'mlly'
+import pathe from 'pathe'
+import { findExportNames } from 'mlly'
 import { camelCase } from 'scule'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../context'
@@ -34,7 +34,7 @@ export async function prepareLayers(
     const traverse = async (currentDir: string, baseDir: string) => {
       const entries = await fs.promises.readdir(currentDir, { withFileTypes: true })
       for (const entry of entries) {
-        const entryPath = path.join(currentDir, entry.name)
+        const entryPath = pathe.join(currentDir, entry.name)
         if (entry.isDirectory()) {
           if (recursive) {
             await traverse(entryPath, baseDir)
@@ -47,10 +47,10 @@ export async function prepareLayers(
 
             if (exports.includes('default')) {
               // Compute the file path without extension
-              const filePath = sanitizeFilePath(entryPath.replace(/\.(ts|js)$/, ''))
+              const filePath = entryPath.replace(/\.(ts|js)$/, '')
 
               // Compute the relative path from the baseDir
-              const routePathRaw = sanitizeFilePath(path.relative(baseDir, filePath))
+              const routePathRaw = pathe.relative(baseDir, filePath)
               const name = camelCase(routePathRaw)
               const routePath = (options.delimiter !== '/')
                 ? routePathRaw.replace(/\//g, options.delimiter)
@@ -73,14 +73,14 @@ export async function prepareLayers(
   // Go through each layer and find the socket directory
   const _layers = [...nuxt.options._layers].reverse()
   for (const layer of _layers) {
-    const clientSrcDir = sanitizeFilePath(path.join(layer.config.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir))
-    const serverSrcDir = sanitizeFilePath(path.join(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir))
-    const serverApiSrcDir = sanitizeFilePath(path.join(serverSrcDir, '/api'))
+    const clientSrcDir = pathe.join(layer.config.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir)
+    const serverSrcDir = pathe.join(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir)
+    const serverApiSrcDir = pathe.join(serverSrcDir, '/api')
 
     // Add paths to watcher
     watchingPaths.push(
-      sanitizeFilePath(path.relative(nuxt.options.rootDir, clientSrcDir)),
-      sanitizeFilePath(path.relative(nuxt.options.rootDir, serverSrcDir)),
+      pathe.relative(nuxt.options.rootDir, clientSrcDir),
+      pathe.relative(nuxt.options.rootDir, serverSrcDir),
     )
 
     // Scan client and server directories

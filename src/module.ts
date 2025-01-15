@@ -1,6 +1,5 @@
-import { relative, resolve } from 'node:path'
+import { relative, resolve } from 'pathe'
 import defu from 'defu'
-import { sanitizeFilePath } from 'mlly'
 import { defineNuxtModule, updateTemplates } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
 import type { NuxtEasyWebSocketOptions } from './types'
@@ -39,7 +38,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     generateServerEvents(ctx, _nuxt)
 
     _nuxt.hook('builder:watch', async (_, path) => {
-      path = sanitizeFilePath(relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path)))
+      path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
       if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
 
       ctx.clientRoutes = []

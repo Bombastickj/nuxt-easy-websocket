@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.1.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.0...v2.1.1)
+
+### 🩹 Fixes
+
+- **build:** Separate TypeScript types for WS events ([b30f277](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b30f277))
+
+### 💅 Refactors
+
+- Update path handling with pathe module ([0f440df](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0f440df))
+- Clean up and comment out logging code ([1bd4d86](https://github.com/Bombastickj/nuxt-easy-websocket/commit/1bd4d86))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.1.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.0.0...v2.1.0)

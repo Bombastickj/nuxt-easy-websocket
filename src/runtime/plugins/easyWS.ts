@@ -21,7 +21,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
   // Function to establish WebSocket connection
   function connect() {
     socket = new WebSocket(baseUrl)
-    console.log(`[ClientSocket]: Attempting to connect to ${baseUrl}`)
+    // console.log(`[ClientSocket]: Attempting to connect to ${baseUrl}`)
 
     // Reset socketOpenPromise
     socketOpenPromise = new Promise<void>((resolve) => {
@@ -42,7 +42,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
     socket.addEventListener('message', async (message) => {
       try {
         const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
-        console.log('[ClientSocket]: Message received:', message.data)
+        // console.log('[ClientSocket]: Message received:', message.data)
         const eventModule = clientRoutes.find(e => e.name === name)
         if (eventModule) {
           // Execute the handler associated with the event
@@ -81,7 +81,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
     }
 
     const delay = Math.min(baseReconnectDelay * 2 ** reconnectAttempts, 30000) // Exponential backoff up to 30 seconds
-    console.log(`[ClientSocket]: Reconnecting in ${delay / 1000} seconds... (Attempt ${reconnectAttempts + 1})`)
+    // console.log(`[ClientSocket]: Reconnecting in ${delay / 1000} seconds... (Attempt ${reconnectAttempts + 1})`)
 
     setTimeout(() => {
       reconnectAttempts += 1
@@ -129,72 +129,3 @@ export default defineNuxtPlugin((_nuxtApp) => {
     },
   }
 })
-// export default defineNuxtPlugin((_nuxtApp) => {
-//   // this plugin only works on client
-//   if (import.meta.server) return {}
-
-//   const isSecure = location.protocol === 'https:'
-//   const url = (isSecure ? 'wss://' : 'ws://') + location.host + '/_ws'
-//   const socket = new WebSocket(url)
-
-//   // Promise to track the open state of the socket
-//   let socketOpenResolve: () => void
-//   const socketOpenPromise = new Promise<void>((resolve) => {
-//     socketOpenResolve = resolve
-//   })
-
-//   socket.addEventListener('open', () => {
-//     console.log('[ClientSocket]:', 'open')
-//     socketOpenResolve()
-//   })
-//   socket.addEventListener('message', async (message) => {
-//     try {
-//       const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
-//       console.log('[ClientSocket]:', message.data)
-
-//       const eventModule = clientRoutes.find(e => e.name === name)
-//       if (eventModule) {
-//         // Execute the handler associated with the event
-//         await eventModule.handler({ data })
-//       }
-//       else {
-//         console.log('Event not found')
-//       }
-//     }
-//     catch (error) {
-//       console.error('[ClientSocket]:', error)
-//     }
-//   })
-//   socket.addEventListener('close', () => {
-//     console.log('[ClientSocket]:', 'close')
-
-//     if (socket.readyState === WebSocket.CLOSED) {
-//       // reconnect
-//     }
-//   })
-
-//   async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {
-//     if (socket.readyState === WebSocket.OPEN) {
-//       socket.send(
-//         JSON.stringify({ name, data }),
-//       )
-//     }
-//     else if (socket.readyState === WebSocket.CONNECTING) {
-//       await socketOpenPromise
-//       socket.send(
-//         JSON.stringify({ name, data }),
-//       )
-//     }
-//     else {
-//       console.error('[ClientSocket]: Cannot send message, socket is not open.')
-//     }
-//   }
-
-//   return {
-//     provide: {
-//       easyWS: {
-//         send,
-//       },
-//     },
-//   }
-// })

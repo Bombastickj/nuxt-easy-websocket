@@ -6,7 +6,7 @@ import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
 
 export default defineWebSocketHandler({
   async open(peer: Peer) {
-    console.log('[ServerSocket]: Connected: ', peer.id)
+    // console.log('[ServerSocket]: Connected: ', peer.id)
 
     const ewsPeer = new EasyWSServerPeer(peer)
     easyWSConnections.set(peer.id, ewsPeer)
@@ -17,7 +17,7 @@ export default defineWebSocketHandler({
     }
   },
   async message(peer: Peer, message: Message) {
-    console.log('[ServerSocket]:', message.json())
+    // console.log('[ServerSocket]:', message.json())
     const { name, data } = message.json() as { name: string, data: unknown }
 
     const eventModule = serverRoutes.find(e => e.name === name)
@@ -37,7 +37,7 @@ export default defineWebSocketHandler({
     }
   },
   async close(peer: Peer) {
-    console.log('[ServerSocket]: Disconnect: ' + peer)
+    // console.log('[ServerSocket]: Disconnect: ' + peer)
     const closeCon = serverConnection.filter(con => con.type === 'close')
 
     const ewsPeer = easyWSConnections.get(peer.id)

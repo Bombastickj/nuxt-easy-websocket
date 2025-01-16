@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.1.2
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.1...v2.1.2)
+
+### 🩹 Fixes
+
+- **types:** Add "Serialize" type to enhance the definition of the EasyWSEvent handler functions. ([f721393](https://github.com/Bombastickj/nuxt-easy-websocket/commit/f721393))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.1.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.0...v2.1.1)

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.1.3
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.2...v2.1.3)
+
+### 🩹 Fixes
+
+- **types:** Simplify WebSocket event type handling ([c18ae00](https://github.com/Bombastickj/nuxt-easy-websocket/commit/c18ae00))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.1.2
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.1...v2.1.2)

@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v2.2.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.3...v2.2.0)
+
+### 🚀 Enhancements
+
+- Add WebSocket reconnection options in Nuxt config ([b581723](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b581723))
+- **playground:** Add WebSocket integration and reconnection UI ([b0e7b98](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b0e7b98))
+
+### 🩹 Fixes
+
+- **playground:** Set Nuxt to always use latest ([93704fa](https://github.com/Bombastickj/nuxt-easy-websocket/commit/93704fa))
+- **builder:watch:** Add dev mode condition for file watch logic ([b68d349](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b68d349))
+
+### 💅 Refactors
+
+- Improve WebSocket management ([0de8778](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0de8778))
+
+### 🏡 Chore
+
+- Update package and devDependencies versions ([e8332e4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e8332e4))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.1.3
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.2...v2.1.3)

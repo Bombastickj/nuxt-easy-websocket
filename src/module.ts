@@ -37,29 +37,32 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     generateClientEvents(ctx, _nuxt)
     generateServerEvents(ctx, _nuxt)
 
-    _nuxt.hook('builder:watch', async (_, path) => {
-      path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
-      if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
+    // Development mode file watching
+    if (_nuxt.options.dev) {
+      _nuxt.hook('builder:watch', async (_, path) => {
+        path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
+        if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
 
-      ctx.clientRoutes = []
-      ctx.serverRoutes = []
-      ctx.serverConnection = []
-      ctx.watchingPaths = []
+        ctx.clientRoutes = []
+        ctx.serverRoutes = []
+        ctx.serverConnection = []
+        ctx.watchingPaths = []
 
-      await prepareLayers(ctx, _nuxt)
-      generateRoutes(ctx, _nuxt)
-      generateClientEvents(ctx, _nuxt)
-      generateServerEvents(ctx, _nuxt)
+        await prepareLayers(ctx, _nuxt)
+        generateRoutes(ctx, _nuxt)
+        generateClientEvents(ctx, _nuxt)
+        generateServerEvents(ctx, _nuxt)
 
-      updateTemplates({
-        filter: (t) => {
-          return [
-            'types/nuxt-easy-websocket-routes.d.ts',
-            'modules/nuxt-easy-websocket-client.ts',
-            'modules/nuxt-easy-websocket-server.ts',
-          ].includes(t.filename)
-        },
+        updateTemplates({
+          filter: (t) => {
+            return [
+              'types/nuxt-easy-websocket-routes.d.ts',
+              'modules/nuxt-easy-websocket-client.ts',
+              'modules/nuxt-easy-websocket-server.ts',
+            ].includes(t.filename)
+          },
+        })
       })
-    })
+    }
   },
 })

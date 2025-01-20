@@ -1,27 +1,75 @@
-import { defineNuxtPlugin } from '#app'
+import { computed, readonly, ref } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
 import type { EasyWSServerRoutes } from '#nuxt-easy-websocket/routes'
 
+const WS_STATES = {
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSING: 2,
+  CLOSED: 3,
+} as const
+export interface WebSocketState {
+  isConnected: boolean
+  isReconnecting: boolean
+  reconnectCountdown: number | null
+  lastError: string | null
+  connectionAttempts: number
+  readyState: number
+}
+
 export default defineNuxtPlugin((_nuxtApp) => {
-  // This plugin only works on the client
-  if (import.meta.server) return {}
-
-  const isSecure = location.protocol === 'https:'
-  const baseUrl = `${isSecure ? 'wss://' : 'ws://'}${location.host}/_ws`
-
   let socket: WebSocket | null = null
   let socketOpenResolve: (() => void) | null = null
   let socketOpenPromise: Promise<void> | null = null
 
-  // Reconnection settings
-  let reconnectAttempts = 0
-  const maxReconnectAttempts = 10
-  const baseReconnectDelay = 1000 // in ms
+  const state = ref<WebSocketState>({
+    isConnected: false,
+    isReconnecting: false,
+    reconnectCountdown: null,
+    lastError: null,
+    connectionAttempts: 0,
+    readyState: WS_STATES.CLOSED,
+  })
+
+  const runtimeConfig = useRuntimeConfig().public.easyWebSocket.ws
+
+  let currentReconnectTimeout: number | null = null
+  let countdownInterval: number | null = null
+
+  const maxReconnectAttemptsReached = computed(() =>
+    state.value.connectionAttempts >= runtimeConfig.maxReconnectAttempts,
+  )
+  const connectionStatus = computed(() => {
+    switch (state.value.readyState) {
+      case WS_STATES.CONNECTING:
+        return 'connecting'
+      case WS_STATES.OPEN:
+        return 'connected'
+      case WS_STATES.CLOSING:
+        return 'closing'
+      case WS_STATES.CLOSED:
+        return 'disconnected'
+      default:
+        return 'unknown'
+    }
+  })
+
+  function updateReadyState(newState: number) {
+    state.value.readyState = newState
+    state.value.isConnected = newState === WS_STATES.OPEN
+  }
 
   // Function to establish WebSocket connection
   function connect() {
-    socket = new WebSocket(baseUrl)
+    const isSecure = location.protocol === 'https:'
+    const baseUrl = `${isSecure ? 'wss://' : 'ws://'}${location.host}/_ws`
+
+    if (socket?.readyState === WS_STATES.OPEN) return
+
     // console.log(`[ClientSocket]: Attempting to connect to ${baseUrl}`)
+    socket = new WebSocket(baseUrl)
+    updateReadyState(socket.readyState)
 
     // Reset socketOpenPromise
     socketOpenPromise = new Promise<void>((resolve) => {
@@ -31,7 +79,12 @@ export default defineNuxtPlugin((_nuxtApp) => {
     // Event listener for when the connection opens
     socket.addEventListener('open', () => {
       console.log('[ClientSocket]: Connection opened')
-      reconnectAttempts = 0 // Reset reconnection attempts on successful connection
+      updateReadyState(WS_STATES.OPEN)
+      state.value.isReconnecting = false
+      state.value.reconnectCountdown = null
+      state.value.connectionAttempts = 0
+      state.value.lastError = null
+
       if (socketOpenResolve) {
         socketOpenResolve()
         socketOpenResolve = null
@@ -41,33 +94,44 @@ export default defineNuxtPlugin((_nuxtApp) => {
     // Event listener for incoming messages
     socket.addEventListener('message', async (message) => {
       try {
-        const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
         // console.log('[ClientSocket]: Message received:', message.data)
+        const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
         const eventModule = clientRoutes.find(e => e.name === name)
+
         if (eventModule) {
           // Execute the handler associated with the event
           await eventModule.handler({ data })
         }
         else {
-          console.warn('[ClientSocket]: Event not found:', name)
+          const error = `Event not found: ${name}`
+          console.warn('[ClientSocket]:', error)
+          state.value.lastError = error
         }
       }
       catch (error) {
-        console.error('[ClientSocket]: Error processing message:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error processing message'
+        console.error('[ClientSocket]: Error processing message:', errorMessage)
+        state.value.lastError = errorMessage
       }
     })
 
     // Event listener for connection closure
     socket.addEventListener('close', (event) => {
-      console.warn(`[ClientSocket]: Connection closed (Code: ${event.code}, Reason: ${event.reason})`)
-      attemptReconnect()
+      const closeMessage = `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'No reason provided'})`
+      console.warn(`[ClientSocket]: ${closeMessage}`)
+      state.value.lastError = closeMessage
+      updateReadyState(WS_STATES.CLOSED)
+
+      if (runtimeConfig.reconnectOnClose) attemptReconnect()
     })
 
     // Event listener for errors
     socket.addEventListener('error', (error) => {
-      console.error('[ClientSocket]: WebSocket error:', error)
-      // Optionally close the socket to trigger the 'close' event
-      if (socket && socket.readyState !== WebSocket.CLOSED) {
+      const errorMessage = error instanceof Error ? error.message : 'WebSocket connection error'
+      console.error('[ClientSocket]: WebSocket error:', errorMessage)
+      state.value.lastError = errorMessage
+
+      if (socket && socket.readyState !== WS_STATES.CLOSED) {
         socket.close()
       }
     })
@@ -75,25 +139,55 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
   // Function to handle reconnection attempts
   function attemptReconnect() {
-    if (reconnectAttempts >= maxReconnectAttempts) {
+    if (maxReconnectAttemptsReached.value) {
       console.error('[ClientSocket]: Max reconnection attempts reached. Giving up.')
+      state.value.reconnectCountdown = null
       return
     }
 
-    const delay = Math.min(baseReconnectDelay * 2 ** reconnectAttempts, 30000) // Exponential backoff up to 30 seconds
-    // console.log(`[ClientSocket]: Reconnecting in ${delay / 1000} seconds... (Attempt ${reconnectAttempts + 1})`)
+    state.value.isReconnecting = true
+    const delay = runtimeConfig.reconnectDelay
 
-    setTimeout(() => {
-      reconnectAttempts += 1
+    state.value.reconnectCountdown = delay / 1000
+
+    const interval = 1000
+    let remaining = delay / 1000
+
+    countdownInterval = window.setInterval(() => {
+      remaining -= 1
+      if (remaining <= 0) {
+        if (countdownInterval !== null) clearInterval(countdownInterval)
+        state.value.reconnectCountdown = null
+      }
+      else {
+        state.value.reconnectCountdown = remaining
+      }
+    }, interval)
+
+    currentReconnectTimeout = window.setTimeout(() => {
+      state.value.connectionAttempts += 1
       connect()
+      if (countdownInterval !== null) clearInterval(countdownInterval)
+      state.value.reconnectCountdown = null
     }, delay)
   }
 
-  // Initialize the WebSocket connection
-  connect()
+  // Function to manually trigger reconnect
+  function forceReconnect() {
+    if (countdownInterval !== null) clearInterval(countdownInterval)
+    if (currentReconnectTimeout) {
+      clearTimeout(currentReconnectTimeout)
+      state.value.connectionAttempts += 1
+    }
+    state.value.reconnectCountdown = null
+    connect()
+  }
 
-  // Cleanup on unmount (optional, depending on your application's lifecycle)
-  // You can add hooks here if necessary
+  // Initialize the WebSocket connection
+  // This plugin only works on the client
+  if (import.meta.client) {
+    connect()
+  }
 
   // Function to send messages through the WebSocket
   async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {
@@ -102,10 +196,10 @@ export default defineNuxtPlugin((_nuxtApp) => {
       return
     }
 
-    if (socket.readyState === WebSocket.OPEN) {
+    if (socket.readyState === WS_STATES.OPEN) {
       socket.send(JSON.stringify({ name, data }))
     }
-    else if (socket.readyState === WebSocket.CONNECTING) {
+    else if (socket.readyState === WS_STATES.CONNECTING) {
       if (!socketOpenPromise) {
         console.error('[ClientSocket]: socketOpenPromise is not set.')
         return
@@ -116,8 +210,6 @@ export default defineNuxtPlugin((_nuxtApp) => {
     }
     else {
       console.error('[ClientSocket]: Cannot send message, socket is not open.')
-      // Optionally, you can attempt to reconnect here
-      attemptReconnect()
     }
   }
 
@@ -125,6 +217,13 @@ export default defineNuxtPlugin((_nuxtApp) => {
     provide: {
       easyWS: {
         send,
+        state: readonly(state),
+        connectionStatus,
+        maxReconnectAttemptsReached,
+
+        // Utility methods
+        disconnect: () => socket?.close(),
+        forceReconnect,
       },
     },
   }

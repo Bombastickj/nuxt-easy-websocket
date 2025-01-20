@@ -2,7 +2,7 @@ import { relative, resolve } from 'pathe'
 import defu from 'defu'
 import { defineNuxtModule, updateTemplates } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
-import type { NuxtEasyWebSocketOptions } from './types'
+import type { NuxtEasyWebSocketOptions, NuxtEasyWebSocketPublicRuntimeConfig } from './types'
 import { createContext } from './context'
 import { prepareLayers } from './prepare/layers'
 import { generateClientEvents, generateRoutes, generateServerEvents } from './gen'
@@ -20,11 +20,16 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     serverSrcDir: 'socket',
     clientSrcDir: 'socket',
     delimiter: '/',
+    ws: {
+      maxReconnectAttempts: 10,
+      reconnectDelay: 5000,
+      reconnectOnClose: true,
+    },
   },
   async setup(_options, _nuxt) {
     const ctx = createContext(_options)
 
-    prepareRuntime(ctx)
+    prepareRuntime(ctx, _nuxt)
 
     _nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.experimental = defu(nitroConfig.experimental, {
@@ -66,3 +71,9 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     }
   },
 })
+
+declare module '@nuxt/schema' {
+  interface PublicRuntimeConfig {
+    easyWebSocket: NuxtEasyWebSocketPublicRuntimeConfig
+  }
+}

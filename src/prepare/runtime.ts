@@ -1,7 +1,17 @@
+import defu from 'defu'
 import { addImports, addPlugin, addServerImports, addServerHandler } from '@nuxt/kit'
+import type { Nuxt } from 'nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../context'
 
-export function prepareRuntime({ resolver }: NuxtEasyWebSocketContext) {
+export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, nuxt: Nuxt) {
+  // Add runtime configuration
+  nuxt.options.runtimeConfig.public.easyWebSocket = defu(
+    nuxt.options.runtimeConfig.public.easyWebSocket,
+    {
+      ws: options.ws,
+    },
+  )
+
   // client composables
   addImports([
     {

@@ -1,25 +1,5 @@
 import type { EasyWSServerPeer } from './server/utils/EasyWSServerPeer'
 
-export type NuxtEasyWebSocketOptions = {
-  /**
-   * Change the default directory for reading **.{js|ts} files inside src directory
-   * @default 'socket'
-   */
-  clientSrcDir: string
-
-  /**
-   * Change the default directory for reading **.{js|ts} files inside server directory
-   * @default 'socket'
-   */
-  serverSrcDir: string
-
-  /**
-   * Change the default delimiter for client and server routes
-   * @default '/'
-   */
-  delimiter: '/' | ':'
-}
-
 export type { EasyWSServerPeer }
 
 export type EasyWSRouteRaw = { filePath: string, routePath: string, name: string }

@@ -62,8 +62,8 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
           filter: (t) => {
             return [
               'types/nuxt-easy-websocket-routes.d.ts',
-              'modules/nuxt-easy-websocket-client.ts',
-              'modules/nuxt-easy-websocket-server.ts',
+              'modules/nuxt-easy-websocket-client.mts',
+              'modules/nuxt-easy-websocket-server.mts',
             ].includes(t.filename)
           },
         })

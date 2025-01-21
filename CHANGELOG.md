@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.2.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.2.0...v2.2.1)
+
+### 🩹 Fixes
+
+- **builder:watch:** Rename module files to .mts for correct template update ([360b5d4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/360b5d4))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.2.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.1.3...v2.2.0)

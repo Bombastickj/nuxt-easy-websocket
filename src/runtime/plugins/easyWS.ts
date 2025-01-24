@@ -1,3 +1,4 @@
+import type { EasyWSClientState } from '../shared-types'
 import { computed, readonly, ref } from '#imports'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
@@ -9,21 +10,13 @@ const WS_STATES = {
   CLOSING: 2,
   CLOSED: 3,
 } as const
-export interface WebSocketState {
-  isConnected: boolean
-  isReconnecting: boolean
-  reconnectCountdown: number | null
-  lastError: string | null
-  connectionAttempts: number
-  readyState: number
-}
 
 export default defineNuxtPlugin((_nuxtApp) => {
   let socket: WebSocket | null = null
   let socketOpenResolve: (() => void) | null = null
   let socketOpenPromise: Promise<void> | null = null
 
-  const state = ref<WebSocketState>({
+  const state = ref<EasyWSClientState>({
     isConnected: false,
     isReconnecting: false,
     reconnectCountdown: null,

@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.3.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.2.1...v2.3.0)
+
+### 🚀 Enhancements
+
+- Add nitropack dependency to package.json ([18830d2](https://github.com/Bombastickj/nuxt-easy-websocket/commit/18830d2))
+
+### 💅 Refactors
+
+- Replace WebSocketState with EasyWSClientState ([e67fd15](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e67fd15))
+- Enhance WebSocket handling with types ([fb8d9af](https://github.com/Bombastickj/nuxt-easy-websocket/commit/fb8d9af))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.2.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.2.0...v2.2.1)

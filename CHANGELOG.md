@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.3.3
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.2...v2.3.3)
+
+### 🩹 Fixes
+
+- Separate WebSocket init and connection logic ([0fce15d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0fce15d))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.3.2
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.1...v2.3.2)

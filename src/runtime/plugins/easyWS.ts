@@ -53,14 +53,10 @@ export default defineNuxtPlugin((_nuxtApp) => {
     state.value.isConnected = newState === WS_STATES.OPEN
   }
 
-  // Function to establish WebSocket connection
-  function connect() {
+  function initialize() {
     const isSecure = location.protocol === 'https:'
     const baseUrl = `${isSecure ? 'wss://' : 'ws://'}${location.host}/_ws`
 
-    if (socket?.readyState === WS_STATES.OPEN) return
-
-    // console.log(`[ClientSocket]: Attempting to connect to ${baseUrl}`)
     socket = new WebSocket(baseUrl)
     updateReadyState(socket.readyState)
 
@@ -68,6 +64,12 @@ export default defineNuxtPlugin((_nuxtApp) => {
     socketOpenPromise = new Promise<void>((resolve) => {
       socketOpenResolve = resolve
     })
+  }
+
+  // Function to establish WebSocket connection
+  function connect() {
+    if (!socket || socket.readyState === WS_STATES.OPEN) return
+    // console.log(`[ClientSocket]: Attempting to connect to ${baseUrl}`)
 
     // Event listener for when the connection opens
     socket.addEventListener('open', () => {
@@ -178,7 +180,8 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
   // Initialize the WebSocket connection
   // This plugin only works on the client
-  _nuxtApp.hook('app:beforeMount', connect)
+  _nuxtApp.hook('app:beforeMount', initialize)
+  _nuxtApp.hook('app:mounted', connect)
 
   // Function to send messages through the WebSocket
   async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {
@@ -187,17 +190,17 @@ export default defineNuxtPlugin((_nuxtApp) => {
       return
     }
 
-    if (state.value.readyState === WS_STATES.OPEN) {
-      socket?.send(JSON.stringify({ name, data }))
+    if (socket.readyState === WS_STATES.OPEN) {
+      socket.send(JSON.stringify({ name, data }))
     }
-    else if (state.value.readyState === WS_STATES.CONNECTING) {
+    else if (socket.readyState === WS_STATES.CONNECTING) {
       if (!socketOpenPromise) {
         console.error('[ClientSocket]: socketOpenPromise is not set.')
         return
       }
 
       await socketOpenPromise
-      socket?.send(JSON.stringify({ name, data }))
+      socket.send(JSON.stringify({ name, data }))
     }
     else {
       console.error('[ClientSocket]: Cannot send message, socket is not open.')

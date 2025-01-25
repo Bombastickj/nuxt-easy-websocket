@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.3.2
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.1...v2.3.2)
+
+### 🩹 Fixes
+
+- WebSocket handling and state checks ([6b0edc8](https://github.com/Bombastickj/nuxt-easy-websocket/commit/6b0edc8))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.3.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.0...v2.3.1)

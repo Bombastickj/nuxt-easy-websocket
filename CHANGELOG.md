@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v2.3.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.0...v2.3.1)
+
+### 🩹 Fixes
+
+- Improve WebSocket init with onMounted ([2e1f8ae](https://github.com/Bombastickj/nuxt-easy-websocket/commit/2e1f8ae))
+
+### 🏡 Chore
+
+- Upgrade dependencies and devDependencies ([e4e8abb](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e4e8abb))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.3.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.2.1...v2.3.0)

@@ -1,5 +1,5 @@
 import type { EasyWSClientState } from '../shared-types'
-import { computed, onMounted, readonly, ref } from '#imports'
+import { computed, readonly, ref } from '#imports'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
 import type { EasyWSServerRoutes } from '#nuxt-easy-websocket/routes'
@@ -22,7 +22,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
     reconnectCountdown: null,
     lastError: null,
     connectionAttempts: 0,
-    readyState: WS_STATES.CLOSED,
+    readyState: WS_STATES.CONNECTING,
   })
 
   const runtimeConfig = useRuntimeConfig().public.easyWebSocket.ws
@@ -178,7 +178,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
   // Initialize the WebSocket connection
   // This plugin only works on the client
-  onMounted(connect)
+  _nuxtApp.hook('app:beforeMount', connect)
 
   // Function to send messages through the WebSocket
   async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {
@@ -187,17 +187,17 @@ export default defineNuxtPlugin((_nuxtApp) => {
       return
     }
 
-    if (socket.readyState === WS_STATES.OPEN) {
-      socket.send(JSON.stringify({ name, data }))
+    if (state.value.readyState === WS_STATES.OPEN) {
+      socket?.send(JSON.stringify({ name, data }))
     }
-    else if (socket.readyState === WS_STATES.CONNECTING) {
+    else if (state.value.readyState === WS_STATES.CONNECTING) {
       if (!socketOpenPromise) {
         console.error('[ClientSocket]: socketOpenPromise is not set.')
         return
       }
 
       await socketOpenPromise
-      socket.send(JSON.stringify({ name, data }))
+      socket?.send(JSON.stringify({ name, data }))
     }
     else {
       console.error('[ClientSocket]: Cannot send message, socket is not open.')

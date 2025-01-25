@@ -1,5 +1,5 @@
 import type { EasyWSClientState } from '../shared-types'
-import { computed, readonly, ref } from '#imports'
+import { computed, onMounted, readonly, ref } from '#imports'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
 import type { EasyWSServerRoutes } from '#nuxt-easy-websocket/routes'
@@ -178,9 +178,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
   // Initialize the WebSocket connection
   // This plugin only works on the client
-  if (import.meta.client) {
-    connect()
-  }
+  onMounted(connect)
 
   // Function to send messages through the WebSocket
   async function send<T extends keyof EasyWSServerRoutes>(name: T, data?: EasyWSServerRoutes[T]) {

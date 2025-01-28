@@ -15,8 +15,6 @@ export interface EasyWSClientEventHandler<
   (event: EasyWSClientEvent<Request>): Promise<void> | void
 }
 export interface EasyWSClientState {
-  isConnected: boolean
-  isReconnecting: boolean
   reconnectCountdown: number | null
   lastError: string | null
   connectionAttempts: number

@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v2.3.4
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.3...v2.3.4)
+
+### 🩹 Fixes
+
+- Append WebSocket handler plugin ([682cf3d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/682cf3d))
+
+### 💅 Refactors
+
+- Improve WebSocket plugin readability ([caacb9c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/caacb9c))
+- **playground:** Improve reconnection logic with isOpen property ([d8cbf61](https://github.com/Bombastickj/nuxt-easy-websocket/commit/d8cbf61))
+
+### ✅ Tests
+
+- Add new test for index server-side rendering ([22c9205](https://github.com/Bombastickj/nuxt-easy-websocket/commit/22c9205))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.3.3
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.2...v2.3.3)

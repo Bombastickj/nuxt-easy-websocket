@@ -25,7 +25,7 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
   ])
 
   // client websocket handler plugin
-  addPlugin(resolver.resolve('./runtime/plugins/easyWS'))
+  addPlugin(resolver.resolve('./runtime/plugins/easyWS'), { append: true })
 
   // server composables
   addServerImports([

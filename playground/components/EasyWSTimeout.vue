@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="state.isReconnecting"
+    v-if="isOpen"
     class="easy-ws-timeout-wrapper"
   >
     <div class="card">
@@ -35,6 +35,7 @@
 <script setup lang="ts">
 const { state, connectionStatus, maxReconnectAttemptsReached, forceReconnect } = useEasyWS()
 const isDisconnected = computed(() => connectionStatus.value === 'disconnected')
+const isOpen = computed(() => connectionStatus.value === 'connecting' || isDisconnected.value)
 </script>
 
 <style>

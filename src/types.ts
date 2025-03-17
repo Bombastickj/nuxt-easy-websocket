@@ -1,3 +1,5 @@
+import type { Resolver } from '@nuxt/kit'
+
 export * from './runtime/shared-types'
 
 /**
@@ -48,6 +50,21 @@ export type NuxtEasyWebSocketOptions = {
  * Represents a WebSocket route configuration with its file path, route path, and name
  */
 export type NuxtEasyWebSocketRoute = { filePath: string, routePath: string, name: string }
+
+/**
+ * Internal context for the NuxtEasyWebSocket module
+ * Contains all necessary utilities, options, and route collections
+ */
+export interface NuxtEasyWebSocketContext {
+  resolver: Resolver
+  logger: ReturnType<(typeof import('@nuxt/kit'))['useLogger']>
+  userOptions: NuxtEasyWebSocketOptions
+  options: Required<NuxtEasyWebSocketOptions>
+  clientRoutes: NuxtEasyWebSocketRoute[]
+  serverRoutes: NuxtEasyWebSocketRoute[]
+  serverConnection: NuxtEasyWebSocketRoute[]
+  watchingPaths: string[]
+}
 
 export interface NuxtEasyWebSocketPublicRuntimeConfig {
   /**

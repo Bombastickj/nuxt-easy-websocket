@@ -4,8 +4,7 @@ import defu from 'defu'
 import { findExportNames } from 'mlly'
 import { camelCase } from 'scule'
 import type { Nuxt } from '@nuxt/schema'
-import type { NuxtEasyWebSocketContext } from '../context'
-import type { NuxtEasyWebSocketRoute } from '../types'
+import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute } from '../types'
 
 export async function prepareLayers(
   { resolver, options, clientRoutes, serverRoutes, serverConnection, watchingPaths }: NuxtEasyWebSocketContext,

@@ -15,17 +15,17 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
   // client composables
   addImports([
     {
-      from: resolver.resolve('./runtime/composables/defineEasyWSClientEvent'),
+      from: resolver.resolve('./runtime/app/composables/defineEasyWSClientEvent'),
       name: 'defineEasyWSClientEvent',
     },
     {
-      from: resolver.resolve('./runtime/composables/useEasyWS'),
+      from: resolver.resolve('./runtime/app/composables/useEasyWS'),
       name: 'useEasyWS',
     },
   ])
 
   // client websocket handler plugin
-  addPlugin(resolver.resolve('./runtime/plugins/easyWS'), { append: true })
+  addPlugin(resolver.resolve('./runtime/app/plugins/easyWS'), { append: true })
 
   // server composables
   addServerImports([

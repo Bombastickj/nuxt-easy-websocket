@@ -1,4 +1,4 @@
-import type { EasyWSClientState } from '../shared-types'
+import type { EasyWSClientState } from '../../shared-types'
 import { computed, readonly, ref } from '#imports'
 import { defineNuxtPlugin, onNuxtReady, useRuntimeConfig } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'

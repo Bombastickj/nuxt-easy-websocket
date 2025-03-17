@@ -5,7 +5,7 @@ import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
 import type { NuxtEasyWebSocketOptions } from './types'
 import { createContext } from './context'
 import { prepareLayers } from './prepare/layers'
-import { generateClientEvents, generateRoutes, generateServerEvents } from './gen'
+import { generateClientEvents, generatePluginTypes, generateRouteTypes, generateServerEvents } from './gen'
 import { prepareRuntime } from './prepare/runtime'
 
 export * from './types'
@@ -42,7 +42,8 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     })
 
     await prepareLayers(ctx, _nuxt)
-    generateRoutes(ctx, _nuxt)
+    generateRouteTypes(ctx, _nuxt)
+    generatePluginTypes(ctx)
     generateClientEvents(ctx, _nuxt)
     generateServerEvents(ctx, _nuxt)
 
@@ -58,13 +59,15 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
         ctx.watchingPaths = []
 
         await prepareLayers(ctx, _nuxt)
-        generateRoutes(ctx, _nuxt)
+        generateRouteTypes(ctx, _nuxt)
+        generatePluginTypes(ctx)
         generateClientEvents(ctx, _nuxt)
         generateServerEvents(ctx, _nuxt)
 
         updateTemplates({
           filter: (t) => {
             return [
+              'types/nuxt-easy-websocket-plugin.d.ts',
               'types/nuxt-easy-websocket-routes.d.ts',
               'modules/nuxt-easy-websocket-client.mts',
               'modules/nuxt-easy-websocket-server.mts',

@@ -16,11 +16,6 @@
       "require": "./dist/module.cjs"
     }
   },
-  "build": {
-    "externals": [
-      "#nuxt-easy-websocket/routes"
-    ]
-  },
   "main": "./dist/module.cjs",
   "types": "./dist/types.d.ts",
   "files": [

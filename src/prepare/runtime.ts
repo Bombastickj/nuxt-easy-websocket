@@ -15,8 +15,8 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
   // client composables
   addImports([
     {
-      from: resolver.resolve('./runtime/app/composables/defineEasyWSClientEvent'),
-      name: 'defineEasyWSClientEvent',
+      from: resolver.resolve('./runtime/app/composables/defineEasyWSEvent'),
+      name: 'defineEasyWSEvent',
     },
     {
       from: resolver.resolve('./runtime/app/composables/useEasyWS'),

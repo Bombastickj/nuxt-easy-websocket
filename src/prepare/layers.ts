@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import pathe from 'pathe'
+import defu from 'defu'
 import { findExportNames } from 'mlly'
 import { camelCase } from 'scule'
 import type { Nuxt } from '@nuxt/schema'
@@ -11,12 +12,23 @@ export async function prepareLayers(
   nuxt: Nuxt,
 ) {
   /**
-   * Recursively scans a directory for .ts or .js files that exports 'default'.
+   * Recursively scans a directory for .ts or .js files that export 'default'.
    * @param dir - The directory to scan.
-   * @param recursive - Optional setting to control scanning behavior.
+   * @param _options - Optional settings to control scanning behavior.
+   * @param _options.recursive - Whether to scan subdirectories (true by default).
+   * @param _options.fileRegex - Optional regex pattern to filter filenames.
    * @returns An array of objects containing the resolved file path and its corresponding route path.
    */
-  const scanDirectory = async (dir: string, recursive: boolean = true): Promise<NuxtEasyWebSocketRoute[]> => {
+  const scanDirectory = async (dir: string, _options?: {
+    recursive?: boolean
+    fileRegex?: RegExp
+  }): Promise<NuxtEasyWebSocketRoute[]> => {
+    const defaultOptions: {
+      recursive?: boolean
+      fileRegex?: RegExp
+    } = { recursive: true, fileRegex: undefined }
+    const { recursive, fileRegex } = defu(defaultOptions, _options)
+
     const fullDir = resolver.resolve(dir)
     const dirExists = await fs.promises
       .stat(fullDir)
@@ -41,6 +53,11 @@ export async function prepareLayers(
           }
         }
         else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.js'))) {
+          // Check if filename matches the regex pattern if provided
+          if (fileRegex && !fileRegex.test(entry.name)) {
+            continue
+          }
+
           try {
             const fileContent = await fs.promises.readFile(entryPath, 'utf-8')
             const exports = findExportNames(fileContent)
@@ -86,6 +103,11 @@ export async function prepareLayers(
     // Scan client and server directories
     clientRoutes.push(...await scanDirectory(clientSrcDir))
     serverRoutes.push(...await scanDirectory(serverApiSrcDir))
-    serverConnection.push(...await scanDirectory(serverSrcDir, false))
+    serverConnection.push(
+      ...await scanDirectory(serverSrcDir, {
+        recursive: false,
+        fileRegex: /^(open|close)\.(ts|js)$/,
+      }),
+    )
   }
 }

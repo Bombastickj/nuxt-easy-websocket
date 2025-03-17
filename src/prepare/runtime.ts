@@ -22,6 +22,10 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
       from: resolver.resolve('./runtime/app/composables/useEasyWS'),
       name: 'useEasyWS',
     },
+    {
+      from: resolver.resolve('./runtime/app/composables/useExternalWS'),
+      name: 'useExternalWS',
+    },
   ])
 
   // client websocket handler plugin

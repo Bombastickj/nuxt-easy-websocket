@@ -3,6 +3,29 @@ import type { Resolver } from '@nuxt/kit'
 export * from './runtime/shared-types'
 
 /**
+ * WebSocket connection configuration options
+ */
+export type NuxtEasyWebSocketConnectionOptions = {
+  /**
+   * Maximum number of reconnection attempts when connection is lost
+   * @default 10
+   */
+  maxReconnectAttempts?: number
+
+  /**
+   * Delay in milliseconds between reconnection attempts
+   * @default 5000
+   */
+  reconnectDelay?: number
+
+  /**
+   * Whether to automatically attempt reconnection when connection closes
+   * @default true
+   */
+  reconnectOnClose?: boolean
+}
+
+/**
  * Main configuration options for the NuxtEasyWebSocket module.
  * Defines directories, routing behavior, WebSocket settings, and external connections.
  */
@@ -25,25 +48,18 @@ export type NuxtEasyWebSocketOptions = {
    */
   delimiter: '/' | ':'
 
-  ws: {
-    /**
-     * Maximum number of reconnection attempts when connection is lost
-     * @default 10
-     */
-    maxReconnectAttempts?: number
+  /**
+   * Change the websocket behaviour
+   */
+  ws: NuxtEasyWebSocketConnectionOptions
 
-    /**
-     * Delay in milliseconds between reconnection attempts
-     * @default 5000
-     */
-    reconnectDelay?: number
-
-    /**
-     * Whether to automatically attempt reconnection when connection closes
-     * @default true
-     */
-    reconnectOnClose?: boolean
-  }
+  /**
+   * Add external websockets
+   */
+  externalSockets?: Record<string, {
+    url: string
+    ws?: NuxtEasyWebSocketConnectionOptions
+  }>
 }
 
 /**
@@ -60,7 +76,7 @@ export interface NuxtEasyWebSocketContext {
   logger: ReturnType<(typeof import('@nuxt/kit'))['useLogger']>
   userOptions: NuxtEasyWebSocketOptions
   options: Required<NuxtEasyWebSocketOptions>
-  clientRoutes: NuxtEasyWebSocketRoute[]
+  clientRoutes: Record<string, NuxtEasyWebSocketRoute[]>
   serverRoutes: NuxtEasyWebSocketRoute[]
   serverConnection: NuxtEasyWebSocketRoute[]
   watchingPaths: string[]
@@ -73,6 +89,13 @@ export interface NuxtEasyWebSocketPublicRuntimeConfig {
    * @internal
    */
   ws: Required<NuxtEasyWebSocketOptions['ws']>
+
+  /**
+   * Overwritten at build time, used to pass options to runtime
+   *
+   * @internal
+   */
+  externalSockets?: NuxtEasyWebSocketOptions['externalSockets']
 }
 
 declare module '@nuxt/schema' {

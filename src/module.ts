@@ -53,7 +53,9 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
         path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
         if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
 
-        ctx.clientRoutes = []
+        ctx.clientRoutes = {
+          default: [],
+        }
         ctx.serverRoutes = []
         ctx.serverConnection = []
         ctx.watchingPaths = []

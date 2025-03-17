@@ -14,7 +14,9 @@ export function createContext(userOptions: NuxtEasyWebSocketOptions): NuxtEasyWe
     logger: useLogger(NUXT_EASY_WEBSOCKET_MODULE_ID),
     userOptions,
     options,
-    clientRoutes: [],
+    clientRoutes: {
+      default: [],
+    },
     serverRoutes: [],
     serverConnection: [],
     watchingPaths: [],

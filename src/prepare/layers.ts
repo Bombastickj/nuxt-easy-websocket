@@ -100,7 +100,7 @@ export async function prepareLayers(
     )
 
     // Scan client and server directories
-    clientRoutes.push(...await scanDirectory(clientSrcDir))
+    clientRoutes['default'].push(...await scanDirectory(clientSrcDir))
     serverRoutes.push(...await scanDirectory(serverApiSrcDir))
     serverConnection.push(
       ...await scanDirectory(serverSrcDir, {
@@ -108,5 +108,33 @@ export async function prepareLayers(
         fileRegex: /^(open|close)\.(ts|js)$/,
       }),
     )
+
+    // Process external sockets if configured
+    if (options.externalSockets) {
+      for (const [socketName] of Object.entries(options.externalSockets)) {
+        // Scan for external socket handlers in a subdirectory matching the socket name
+        const externalClientDir = pathe.join(layer.config.srcDir, socketName)
+
+        // Check if directory exists before trying to scan
+        const externalDirExists = await fs.promises
+          .stat(resolver.resolve(externalClientDir))
+          .then(stat => stat.isDirectory())
+          .catch(() => false)
+
+        if (externalDirExists) {
+          // Add external directory to watcher
+          watchingPaths.push(
+            pathe.relative(nuxt.options.rootDir, externalClientDir),
+          )
+
+          // Scan for event handlers with the socket name as namespace
+          clientRoutes[socketName] = await scanDirectory(externalClientDir)
+        }
+        else {
+          // Add empty external entry, to still init a connection
+          clientRoutes[socketName] = []
+        }
+      }
+    }
   }
 }

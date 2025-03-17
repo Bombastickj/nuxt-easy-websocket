@@ -1,6 +1,52 @@
 # Changelog
 
 
+## v3.0.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.4...v3.0.0)
+
+### 🚀 Enhancements
+
+- **server-composables:** ⚠️  Rename WebSocket composables for connection and event handling ([a86b445](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a86b445))
+- **server-composables:** ⚠️  Changed scan options for open/close events. ([564ea73](https://github.com/Bombastickj/nuxt-easy-websocket/commit/564ea73))
+- Add plugin and route type generation for Nuxt ([065592a](https://github.com/Bombastickj/nuxt-easy-websocket/commit/065592a))
+- Add external WebSocket support and refactor routes ([b161620](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b161620))
+- Add EasyWSServerPeer to auto-imports ([a401b19](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a401b19))
+
+### 🩹 Fixes
+
+- **ci:** Update npm install command in CI workflow ([3ed0db7](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3ed0db7))
+- **types:** Removed export in favor of nitro, fixed wrong import in client declaration file ([62f3b76](https://github.com/Bombastickj/nuxt-easy-websocket/commit/62f3b76))
+- **types:** Add return type annotation in useEasyWS function ([28017b4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/28017b4))
+
+### 💅 Refactors
+
+- ⚠️  Improve WebSocket handler consistency ([15f6c90](https://github.com/Bombastickj/nuxt-easy-websocket/commit/15f6c90))
+- Streamline socket type definitions ([7f95098](https://github.com/Bombastickj/nuxt-easy-websocket/commit/7f95098))
+- Moved NuxtEasyWebSocketContext to types ([23cbd8a](https://github.com/Bombastickj/nuxt-easy-websocket/commit/23cbd8a))
+- Restructure app directory paths ([5595f1d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/5595f1d))
+- **client-composable:** ⚠️  Rename and adjust event definitions ([413d065](https://github.com/Bombastickj/nuxt-easy-websocket/commit/413d065))
+
+### 🏡 Chore
+
+- **release:** V2.3.4 ([b2d0fca](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b2d0fca))
+- ⚠️  Update package version and dependencies for v3.0.0 ([80db973](https://github.com/Bombastickj/nuxt-easy-websocket/commit/80db973))
+- Update package version to 3.0.0-alpha.0 ([766c57e](https://github.com/Bombastickj/nuxt-easy-websocket/commit/766c57e))
+- **playground:** Updated playground to new implementation ([12794a9](https://github.com/Bombastickj/nuxt-easy-websocket/commit/12794a9))
+- Updated module version and dependencies ([85dfb25](https://github.com/Bombastickj/nuxt-easy-websocket/commit/85dfb25))
+
+#### ⚠️ Breaking Changes
+
+- **server-composables:** ⚠️  Rename WebSocket composables for connection and event handling ([a86b445](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a86b445))
+- **server-composables:** ⚠️  Changed scan options for open/close events. ([564ea73](https://github.com/Bombastickj/nuxt-easy-websocket/commit/564ea73))
+- ⚠️  Improve WebSocket handler consistency ([15f6c90](https://github.com/Bombastickj/nuxt-easy-websocket/commit/15f6c90))
+- **client-composable:** ⚠️  Rename and adjust event definitions ([413d065](https://github.com/Bombastickj/nuxt-easy-websocket/commit/413d065))
+- ⚠️  Update package version and dependencies for v3.0.0 ([80db973](https://github.com/Bombastickj/nuxt-easy-websocket/commit/80db973))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v2.3.4
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.3...v2.3.4)

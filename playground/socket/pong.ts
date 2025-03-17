@@ -1,4 +1,4 @@
-export default defineEasyWSClientEvent<{ timestamp: number }>((event) => {
+export default defineEasyWSEvent<{ timestamp: number }>((event) => {
   const diffInMs = Date.now() - event.data.timestamp
   console.log(`[ClientSocket]: pong took: ${diffInMs}ms`)
 })

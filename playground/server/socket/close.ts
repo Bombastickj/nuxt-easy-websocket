@@ -1,1 +1,1 @@
-export default defineEasyWSClose(() => {})
+export default defineEasyWSSConnection(() => { })

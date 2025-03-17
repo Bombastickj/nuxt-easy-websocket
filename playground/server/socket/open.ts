@@ -1,3 +1,3 @@
-export default defineEasyWSOpen(() => {
-//   peer.subscribe('pong')
+export default defineEasyWSSConnection(() => {
+  //   peer.subscribe('pong')
 })

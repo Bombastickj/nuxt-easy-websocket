@@ -1,6 +1,6 @@
 {
   "name": "nuxt-easy-websocket",
-  "version": "2.3.4",
+  "version": "3.0.0",
   "description": "Easy WebSocket integration module for nuxt",
   "repository": {
     "type": "git",
@@ -38,7 +38,6 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.15.3",
     "crossws": "latest",
     "defu": "^6.1.4",
     "knitwork": "^1.1.0",
@@ -47,15 +46,16 @@
     "scule": "^1.3.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.6.1",
-    "@nuxt/eslint-config": "^0.7.2",
+    "@nuxt/devtools": "^2.3.0",
+    "@nuxt/eslint-config": "^1.2.0",
+    "@nuxt/kit": "^3.16.0",
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.15.3",
+    "@nuxt/schema": "^3.16.0",
     "@nuxt/test-utils": "^3.14.4",
     "@types/node": "latest",
-    "changelogen": "^0.5.7",
+    "changelogen": "^0.6.1",
     "eslint": "^9.15.0",
-    "nuxt": "^3.15.3",
+    "nuxt": "^3.16.0",
     "typescript": "latest",
     "vitest": "^3.0.4",
     "vue-tsc": "^2.2.0"

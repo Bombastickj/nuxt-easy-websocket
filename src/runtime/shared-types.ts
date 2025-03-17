@@ -1,8 +1,10 @@
-import type { EasyWSServerPeer } from './server/utils/EasyWSServerPeer'
-
-export type { EasyWSServerPeer }
-
-export type EasyWSRouteRaw = { filePath: string, routePath: string, name: string }
+// ─────────────── Clientside types ─────────────── //
+export interface EasyWSClientState {
+  reconnectCountdown: number | null
+  lastError: string | null
+  connectionAttempts: number
+  readyState: number
+}
 
 // EasyWSClientEvent
 export interface EasyWSClientEvent<Request> {
@@ -14,34 +16,30 @@ export interface EasyWSClientEventHandler<
 > {
   (event: EasyWSClientEvent<Request>): Promise<void> | void
 }
-export interface EasyWSClientState {
-  reconnectCountdown: number | null
-  lastError: string | null
-  connectionAttempts: number
-  readyState: number
-}
 
-// EasyWSServerOpen
-export interface EasyWSServerConnection {
-  peer: InstanceType<typeof EasyWSServerPeer>
+// ─────────────── Server types ─────────────── //
+// EasyWSServerConnection
+export interface EasyWSServerConnection<Peer = unknown> {
+  peer: Peer // InstanceType<typeof EasyWSServerPeer>
 }
-export interface EasyWSServerConnectionHandler {
-  (event: EasyWSServerConnection): Promise<void> | void
+export interface EasyWSServerConnectionHandler<Peer = unknown> {
+  (event: EasyWSServerConnection<Peer>): Promise<void> | void
 }
 
 // EasyWSServerEvent
-// export type EasyWSServerPeer = import ('crossws').Peer & { send }
-export interface EasyWSServerEvent<Request> extends EasyWSServerConnection {
+export interface EasyWSServerEvent<Peer, Request> extends EasyWSServerConnection<Peer> {
   data: Request
 }
+export type EasyWSServerEventHandlerPeer<T = unknown> = T
 export type EasyWSServerEventHandlerRequest<T = unknown> = T
 export interface EasyWSServerEventHandler<
+  Peer extends EasyWSServerEventHandlerPeer = EasyWSServerEventHandlerPeer,
   Request extends EasyWSServerEventHandlerRequest = EasyWSServerEventHandlerRequest,
 > {
-  (event: EasyWSServerEvent<Request>): Promise<void> | void
+  (event: EasyWSServerEvent<Peer, Request>): Promise<void> | void
 }
 
-// generated client & server
+// ─────────────── Generated types ─────────────── //
 export interface EasyWSClientEventGenerated<T = unknown> {
   name: string
   handler: EasyWSClientEventHandler<T>

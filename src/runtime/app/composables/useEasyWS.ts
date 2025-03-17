@@ -1,3 +1,3 @@
-import { useNuxtApp } from '#app'
+import { useNuxtApp, type NuxtApp } from '#app'
 
-export const useEasyWS = () => useNuxtApp().$easyWS
+export const useEasyWS = (): NuxtApp['$easyWS'] => useNuxtApp().$easyWS

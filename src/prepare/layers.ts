@@ -4,7 +4,7 @@ import { findExportNames } from 'mlly'
 import { camelCase } from 'scule'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../context'
-import type { EasyWSRouteRaw } from '../types'
+import type { NuxtEasyWebSocketRoute } from '../types'
 
 export async function prepareLayers(
   { resolver, options, clientRoutes, serverRoutes, serverConnection, watchingPaths }: NuxtEasyWebSocketContext,
@@ -16,7 +16,7 @@ export async function prepareLayers(
    * @param recursive - Optional setting to control scanning behavior.
    * @returns An array of objects containing the resolved file path and its corresponding route path.
    */
-  const scanDirectory = async (dir: string, recursive: boolean = true): Promise<EasyWSRouteRaw[]> => {
+  const scanDirectory = async (dir: string, recursive: boolean = true): Promise<NuxtEasyWebSocketRoute[]> => {
     const fullDir = resolver.resolve(dir)
     const dirExists = await fs.promises
       .stat(fullDir)
@@ -24,7 +24,7 @@ export async function prepareLayers(
       .catch(() => false)
     if (!dirExists) return []
 
-    const events: EasyWSRouteRaw[] = []
+    const events: NuxtEasyWebSocketRoute[] = []
 
     /**
      * Recursively traverses directories and scans for files exporting 'default'.

@@ -2,7 +2,7 @@ import { relative, resolve } from 'pathe'
 import defu from 'defu'
 import { defineNuxtModule, updateTemplates } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
-import type { NuxtEasyWebSocketOptions, NuxtEasyWebSocketPublicRuntimeConfig } from './types'
+import type { NuxtEasyWebSocketOptions } from './types'
 import { createContext } from './context'
 import { prepareLayers } from './prepare/layers'
 import { generateClientEvents, generateRoutes, generateServerEvents } from './gen'
@@ -75,9 +75,3 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     }
   },
 })
-
-declare module '@nuxt/schema' {
-  interface PublicRuntimeConfig {
-    easyWebSocket: NuxtEasyWebSocketPublicRuntimeConfig
-  }
-}

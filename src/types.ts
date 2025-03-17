@@ -1,5 +1,9 @@
 export * from './runtime/shared-types'
 
+/**
+ * Main configuration options for the NuxtEasyWebSocket module.
+ * Defines directories, routing behavior, WebSocket settings, and external connections.
+ */
 export type NuxtEasyWebSocketOptions = {
   /**
    * Change the default directory for reading **.{js|ts} files inside src directory
@@ -40,6 +44,11 @@ export type NuxtEasyWebSocketOptions = {
   }
 }
 
+/**
+ * Represents a WebSocket route configuration with its file path, route path, and name
+ */
+export type NuxtEasyWebSocketRoute = { filePath: string, routePath: string, name: string }
+
 export interface NuxtEasyWebSocketPublicRuntimeConfig {
   /**
    * Overwritten at build time, used to pass options to runtime
@@ -47,4 +56,10 @@ export interface NuxtEasyWebSocketPublicRuntimeConfig {
    * @internal
    */
   ws: Required<NuxtEasyWebSocketOptions['ws']>
+}
+
+declare module '@nuxt/schema' {
+  interface PublicRuntimeConfig {
+    easyWebSocket: NuxtEasyWebSocketPublicRuntimeConfig
+  }
 }

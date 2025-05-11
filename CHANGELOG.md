@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v3.1.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.0.0...v3.1.0)
+
+### 🚀 Enhancements
+
+- Add new file to define Easy WebSocket Server (WSS) connection for errors ([6f93016](https://github.com/Bombastickj/nuxt-easy-websocket/commit/6f93016))
+
+### 🩹 Fixes
+
+- **module-build:** Fixed building errors coming from breaking changes in @nuxt/module-builder ([c1053b2](https://github.com/Bombastickj/nuxt-easy-websocket/commit/c1053b2))
+
+### 💅 Refactors
+
+- Add debounce to improve dev mode performance ([d36d7f8](https://github.com/Bombastickj/nuxt-easy-websocket/commit/d36d7f8))
+- Externalize scanDirectory function ([3536cf5](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3536cf5))
+- Update WebSocket message handling data type ([8806fab](https://github.com/Bombastickj/nuxt-easy-websocket/commit/8806fab))
+
+### 🏡 Chore
+
+- Upgraded dependencies ([a163e92](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a163e92))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.0.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v2.3.4...v3.0.0)

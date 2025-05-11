@@ -49,33 +49,36 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
 
     // Development mode file watching
     if (_nuxt.options.dev) {
+      let debounceTimeout: NodeJS.Timeout | null = null
       _nuxt.hook('builder:watch', async (_, path) => {
         path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
         if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
 
-        ctx.clientRoutes = {
-          default: [],
-        }
-        ctx.serverRoutes = []
-        ctx.serverConnection = []
-        ctx.watchingPaths = []
+        if (debounceTimeout) clearTimeout(debounceTimeout)
+        debounceTimeout = setTimeout(async () => {
+          // Clear cached routes and file scan cache
+          ctx.clientRoutes = { default: [] }
+          ctx.serverRoutes = []
+          ctx.serverConnection = []
+          ctx.watchingPaths = []
 
-        await prepareLayers(ctx, _nuxt)
-        generateRouteTypes(ctx, _nuxt)
-        generatePluginTypes(ctx)
-        generateClientEvents(ctx, _nuxt)
-        generateServerEvents(ctx, _nuxt)
+          await prepareLayers(ctx, _nuxt)
+          generateRouteTypes(ctx, _nuxt)
+          generatePluginTypes(ctx)
+          generateClientEvents(ctx, _nuxt)
+          generateServerEvents(ctx, _nuxt)
 
-        updateTemplates({
-          filter: (t) => {
-            return [
-              'types/nuxt-easy-websocket-plugin.d.ts',
-              'types/nuxt-easy-websocket-routes.d.ts',
-              'modules/nuxt-easy-websocket-client.mts',
-              'modules/nuxt-easy-websocket-server.mts',
-            ].includes(t.filename)
-          },
-        })
+          updateTemplates({
+            filter: (t) => {
+              return [
+                'types/nuxt-easy-websocket-plugin.d.ts',
+                'types/nuxt-easy-websocket-routes.d.ts',
+                'modules/nuxt-easy-websocket-client.mts',
+                'modules/nuxt-easy-websocket-server.mts',
+              ].includes(t.filename)
+            },
+          })
+        }, 300)
       })
     }
   },

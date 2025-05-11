@@ -18,7 +18,7 @@ export default defineWebSocketHandler({
   },
   async message(peer: Peer, message: Message) {
     // console.log('[ServerSocket]:', message.json())
-    const { name, data } = message.json() as { name: string, data: unknown }
+    const { name, data } = message.json() as { name: string, data: never }
 
     const eventModule = serverRoutes.find(e => e.name === name)
     if (eventModule) {

@@ -1,4 +1,4 @@
-import type { Peer, Message } from 'crossws'
+import type { Peer, Message, WSError } from 'crossws'
 import { EasyWSServerPeer } from '../utils/EasyWSServerPeer'
 // @ts-expect-error: Unreachable code error
 import { defineWebSocketHandler, EasyWSSConnections } from '#imports'
@@ -48,8 +48,17 @@ export default defineWebSocketHandler({
         await con.handler({ peer: ewsPeer })
       }
     }
-    else {
-      console.log('[ServerSocket]:', 'Peer not found')
+  },
+  async error(peer: Peer, _error: WSError) {
+    const errorCon = serverConnection.filter(con => con.type === 'error')
+
+    const ewsPeer = EasyWSSConnections.get(peer.id)
+    EasyWSSConnections.delete(peer.id)
+
+    if (ewsPeer) {
+      for (const con of errorCon) {
+        await con.handler({ peer: ewsPeer })
+      }
     }
   },
 })

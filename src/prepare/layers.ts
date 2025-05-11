@@ -1,90 +1,14 @@
 import fs from 'node:fs'
 import pathe from 'pathe'
-import defu from 'defu'
-import { findExportNames } from 'mlly'
-import { camelCase } from 'scule'
 import type { Nuxt } from '@nuxt/schema'
-import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute } from '../types'
+import type { NuxtEasyWebSocketContext } from '../types'
+import { scanDirectory } from '../utils/fileScanner'
 
 export async function prepareLayers(
-  { resolver, options, clientRoutes, serverRoutes, serverConnection, watchingPaths }: NuxtEasyWebSocketContext,
+  ctx: NuxtEasyWebSocketContext,
   nuxt: Nuxt,
 ) {
-  /**
-   * Recursively scans a directory for .ts or .js files that export 'default'.
-   * @param dir - The directory to scan.
-   * @param _options - Optional settings to control scanning behavior.
-   * @param _options.recursive - Whether to scan subdirectories (true by default).
-   * @param _options.fileRegex - Optional regex pattern to filter filenames.
-   * @returns An array of objects containing the resolved file path and its corresponding route path.
-   */
-  const scanDirectory = async (dir: string, _options?: {
-    recursive?: boolean
-    fileRegex?: RegExp
-  }): Promise<NuxtEasyWebSocketRoute[]> => {
-    const defaultOptions: {
-      recursive?: boolean
-      fileRegex?: RegExp
-    } = { recursive: true, fileRegex: undefined }
-    const { recursive, fileRegex } = defu(defaultOptions, _options)
-
-    const fullDir = resolver.resolve(dir)
-    const dirExists = await fs.promises
-      .stat(fullDir)
-      .then(stat => stat.isDirectory())
-      .catch(() => false)
-    if (!dirExists) return []
-
-    const events: NuxtEasyWebSocketRoute[] = []
-
-    /**
-     * Recursively traverses directories and scans for files exporting 'default'.
-     * @param currentDir - The current directory being traversed.
-     * @param baseDir - The base directory to compute relative paths.
-     */
-    const traverse = async (currentDir: string, baseDir: string) => {
-      const entries = await fs.promises.readdir(currentDir, { withFileTypes: true })
-      for (const entry of entries) {
-        const entryPath = pathe.join(currentDir, entry.name)
-        if (entry.isDirectory()) {
-          if (recursive) {
-            await traverse(entryPath, baseDir)
-          }
-        }
-        else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.js'))) {
-          // Check if filename matches the regex pattern if provided
-          if (fileRegex && !fileRegex.test(entry.name)) {
-            continue
-          }
-
-          try {
-            const fileContent = await fs.promises.readFile(entryPath, 'utf-8')
-            const exports = findExportNames(fileContent)
-
-            if (exports.includes('default')) {
-              // Compute the file path without extension
-              const filePath = entryPath.replace(/\.(ts|js)$/, '')
-
-              // Compute the relative path from the baseDir
-              const routePathRaw = pathe.relative(baseDir, filePath)
-              const name = camelCase(routePathRaw)
-              const routePath = (options.delimiter !== '/')
-                ? routePathRaw.replace(/\//g, options.delimiter)
-                : routePathRaw
-
-              events.push({ filePath, routePath, name })
-            }
-          }
-          catch (error) {
-            console.warn(`Failed to parse exports from ${entryPath}:`, error)
-          }
-        }
-      }
-    }
-
-    await traverse(fullDir, fullDir)
-    return events
-  }
+  const { resolver, options, clientRoutes, serverRoutes, serverConnection, watchingPaths } = ctx
 
   // Go through each layer and find the socket directory
   const _layers = [...nuxt.options._layers].reverse()
@@ -100,12 +24,12 @@ export async function prepareLayers(
     )
 
     // Scan client and server directories
-    clientRoutes['default'].push(...await scanDirectory(clientSrcDir))
-    serverRoutes.push(...await scanDirectory(serverApiSrcDir))
+    clientRoutes['default'].push(...await scanDirectory(ctx, clientSrcDir))
+    serverRoutes.push(...await scanDirectory(ctx, serverApiSrcDir))
     serverConnection.push(
-      ...await scanDirectory(serverSrcDir, {
+      ...await scanDirectory(ctx, serverSrcDir, {
         recursive: false,
-        fileRegex: /^(open|close)\.(ts|js)$/,
+        fileRegex: /^(open|close|error)\.(ts|js)$/,
       }),
     )
 
@@ -128,7 +52,7 @@ export async function prepareLayers(
           )
 
           // Scan for event handlers with the socket name as namespace
-          clientRoutes[socketName] = await scanDirectory(externalClientDir)
+          clientRoutes[socketName] = await scanDirectory(ctx, externalClientDir)
         }
         else {
           // Add empty external entry, to still init a connection

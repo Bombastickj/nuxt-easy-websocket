@@ -17,7 +17,6 @@
     }
   },
   "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
   "files": [
     "dist"
   ],
@@ -43,14 +42,14 @@
   "devDependencies": {
     "@nuxt/devtools": "^2.3.0",
     "@nuxt/eslint-config": "^1.2.0",
-    "@nuxt/kit": "^3.16.0",
-    "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.16.0",
+    "@nuxt/kit": "^3.17.2",
+    "@nuxt/module-builder": "^1.0.1",
+    "@nuxt/schema": "^3.17.2",
     "@nuxt/test-utils": "^3.14.4",
     "@types/node": "latest",
     "changelogen": "^0.6.1",
     "eslint": "^9.15.0",
-    "nuxt": "^3.16.0",
+    "nuxt": "^3.17.2",
     "typescript": "latest",
     "vitest": "^3.0.4",
     "vue-tsc": "^2.2.0"

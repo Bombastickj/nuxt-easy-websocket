@@ -1,5 +1,5 @@
 import defu from 'defu'
-import { addImports, addPlugin, addServerImports, addServerHandler } from '@nuxt/kit'
+import { addImports, addPlugin, addServerImports, addServerHandler, addServerPlugin } from '@nuxt/kit'
 import type { Nuxt } from 'nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
 
@@ -50,6 +50,11 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
       name: 'EasyWSServerPeer',
     },
   ])
+
+  // server heartbeat (if enabled)
+  if (options.ws.heartbeat) {
+    addServerPlugin(resolver.resolve('./runtime/server/plugins/easyWSSHeartbeat'))
+  }
 
   // server websocket handler
   addServerHandler({

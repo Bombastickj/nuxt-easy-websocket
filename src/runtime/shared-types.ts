@@ -1,3 +1,10 @@
+// Extend Peer with 'isAlive'
+declare module 'crossws' {
+  interface Peer {
+    isAlive: boolean
+  }
+}
+
 // ─────────────── Clientside types ─────────────── //
 export interface EasyWSClientState {
   reconnectCountdown: number | null

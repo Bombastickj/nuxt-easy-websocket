@@ -174,6 +174,14 @@ export function createWS(
    */
   async function handleMessage(message: MessageEvent) {
     try {
+      // _heartbeat functionality
+      if (config.heartbeat.active) {
+        if (message.data === '_heartbeat') {
+          socket?.send('_heartbeat')
+          return
+        }
+      }
+
       // console.log('[ClientSocket]: Message received:', message.data)
       const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
       const eventModule = clientRoutes[socketName].find(e => e.name === name)

@@ -23,6 +23,23 @@ export type NuxtEasyWebSocketConnectionOptions = {
    * @default true
    */
   reconnectOnClose?: boolean
+
+  /**
+   * Add a heartbeat handler on the Server that terminates unalive connections
+   */
+  heartbeat?: {
+    /**
+     * Toggle the heartbeat functionality
+     * @default true
+     */
+    active?: boolean
+
+    /**
+     * Amount the server waits to check if peers are alive
+     * @default 30_000
+     */
+    timeoutMs?: number
+  }
 }
 
 /**
@@ -58,7 +75,7 @@ export type NuxtEasyWebSocketOptions = {
    */
   externalSockets?: Record<string, {
     url: string
-    ws?: NuxtEasyWebSocketConnectionOptions
+    ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat'>
   }>
 }
 
@@ -82,13 +99,20 @@ export interface NuxtEasyWebSocketContext {
   watchingPaths: string[]
 }
 
+/**
+ * Internal helper
+ */
+type DeepRequired<T> = {
+  [P in keyof T]-?: DeepRequired<T[P]>
+}
+
 export interface NuxtEasyWebSocketPublicRuntimeConfig {
   /**
    * Overwritten at build time, used to pass options to runtime
    *
    * @internal
    */
-  ws: Required<NuxtEasyWebSocketOptions['ws']>
+  ws: DeepRequired<NuxtEasyWebSocketOptions['ws']>
 
   /**
    * Overwritten at build time, used to pass options to runtime

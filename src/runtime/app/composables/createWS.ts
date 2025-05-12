@@ -21,6 +21,10 @@ export function createWS(
     reconnectOnClose: boolean
     maxReconnectAttempts: number
     reconnectDelay: number
+    heartbeat: {
+      active: boolean
+      timeoutMs: number
+    }
   },
 ) {
   // State management

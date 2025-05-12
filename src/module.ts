@@ -28,6 +28,10 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
       maxReconnectAttempts: 10,
       reconnectDelay: 5000,
       reconnectOnClose: true,
+      heartbeat: {
+        active: true,
+        timeoutMs: 30_000,
+      },
     },
   },
   async setup(_options, _nuxt) {

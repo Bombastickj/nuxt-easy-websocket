@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.2.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.1.0...v3.2.0)
+
+### 🚀 Enhancements
+
+- Add heartbeat functionality and config options ([218c8f4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/218c8f4))
+- Add server and WebSocket heartbeat mechanisms ([3c964d8](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3c964d8))
+
+### 🩹 Fixes
+
+- **client-websocket:** Disable logging and prevent send on server side ([226caa1](https://github.com/Bombastickj/nuxt-easy-websocket/commit/226caa1))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.1.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.0.0...v3.1.0)

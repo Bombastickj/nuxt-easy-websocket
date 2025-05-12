@@ -14,8 +14,7 @@ export default defineNitroPlugin(() => {
       const peer = ewsPeer.peer
 
       if (!peer.isAlive) {
-        peer.terminate()
-        EasyWSSConnections.delete(peer.id)
+        peer.terminate() // this calls the close inside _ws.ts
         continue
       }
       peer.isAlive = false

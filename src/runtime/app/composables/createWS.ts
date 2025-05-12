@@ -218,7 +218,8 @@ export function createWS(
    * Will wait for connection if socket is currently connecting
    */
   async function send(name: string, data?: unknown) {
-    console.info('[ClientSocket]: Send:', name, ', Data:', data)
+    // console.info('[ClientSocket]: Send:', name, ', Data:', data)
+    if (import.meta.server) return
 
     if (state.value.readyState === WS_STATES.OPEN) {
       socket?.send(JSON.stringify({ name, data }))

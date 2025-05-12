@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.2.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.2.0...v3.2.1)
+
+### 🩹 Fixes
+
+- Maintain connection state after termination ([e8475fe](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e8475fe))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.2.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.1.0...v3.2.0)

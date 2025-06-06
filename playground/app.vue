@@ -4,7 +4,7 @@
     <button @click="sendPing">
       Ping!
     </button>
-    <button @click="disconnect">
+    <button @click="disconnect()">
       Disconnect
     </button>
 

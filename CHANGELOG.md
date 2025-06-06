@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.3.2
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.1...v3.3.2)
+
+### 🩹 Fixes
+
+- Add quotes to object keys ([3f6fb7a](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3f6fb7a))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.3.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.0...v3.3.1)

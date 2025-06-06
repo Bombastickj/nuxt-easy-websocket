@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.4.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.4...v3.4.0)
+
+### 🚀 Enhancements
+
+- Changed disconnect function to include optional `keepClosed` param ([7c219cd](https://github.com/Bombastickj/nuxt-easy-websocket/commit/7c219cd))
+
+### 🩹 Fixes
+
+- **client-socket:** Always await send if connection is not open ([5c93e8c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/5c93e8c))
+- **playground:** Correct syntax for disconnect button call ([57d6bd2](https://github.com/Bombastickj/nuxt-easy-websocket/commit/57d6bd2))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.3.4
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.3...v3.3.4)

@@ -226,17 +226,16 @@ export function createWS(
     if (state.value.readyState === WS_STATES.OPEN) {
       socket?.send(JSON.stringify({ name, data }))
     }
-    else if (state.value.readyState === WS_STATES.CONNECTING) {
+    else {
       if (!socketOpenPromise) {
         console.error('[ClientSocket]: socketOpenPromise is not set.')
         return
       }
 
+      // we wait until a socket connection has been made
       await socketOpenPromise
+
       socket?.send(JSON.stringify({ name, data }))
-    }
-    else {
-      console.error('[ClientSocket]: Cannot send message, socket is not open.')
     }
   }
 

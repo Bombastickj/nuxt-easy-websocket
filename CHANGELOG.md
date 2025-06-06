@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.3.3
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.2...v3.3.3)
+
+### 🩹 Fixes
+
+- UseExternalWS return type definition ([d7a211e](https://github.com/Bombastickj/nuxt-easy-websocket/commit/d7a211e))
+
+### 💅 Refactors
+
+- Remove EasyWSExternalRoutes dependency inside useExternalWS ([3a8d901](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3a8d901))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.3.2
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.1...v3.3.2)

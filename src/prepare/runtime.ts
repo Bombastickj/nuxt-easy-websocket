@@ -9,6 +9,7 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
     nuxt.options.runtimeConfig.public.easyWebSocket,
     {
       ws: options.ws,
+      externalSockets: options.externalSockets
     },
   )
 

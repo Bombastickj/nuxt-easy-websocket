@@ -18,8 +18,8 @@ export default defineNuxtPlugin((_nuxtApp) => {
   if (config.public.easyWebSocket.externalSockets) {
     for (const [name, socketConfig] of Object.entries(config.public.easyWebSocket.externalSockets)) {
       const mergedConfig = defu(
-        defaultWSConfig,
         socketConfig.ws,
+        defaultWSConfig,
       )
 
       externalSockets[name] = createWS(

@@ -119,7 +119,7 @@ export function createWS(
     initResolver()
 
     const resolvedURL = typeof url === 'string' ? url : url()
-    console.log(`[ClientSocket]: Attempting to connect to ${resolvedURL}`)
+    // console.log(`[ClientSocket]: Attempting to connect to ${resolvedURL}`)
     socket = new WebSocket(resolvedURL)
     updateReadyState(socket.readyState)
 
@@ -133,7 +133,7 @@ export function createWS(
    * Handles the WebSocket 'open' event
    */
   function handleOpen() {
-    console.log('[ClientSocket]: Connection opened')
+    // console.log('[ClientSocket]: Connection opened')
     updateReadyState(WS_STATES.OPEN)
 
     // Reset connection state
@@ -151,7 +151,7 @@ export function createWS(
    */
   function handleClose(event: CloseEvent) {
     const closeMessage = `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'No reason provided'})`
-    console.warn(`[ClientSocket]: ${closeMessage}`)
+    // console.warn(`[ClientSocket]: ${closeMessage}`)
     state.value.lastError = closeMessage
     updateReadyState(WS_STATES.CLOSED)
 

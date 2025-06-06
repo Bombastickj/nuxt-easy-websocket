@@ -25,6 +25,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     clientSrcDir: 'socket',
     delimiter: '/',
     ws: {
+      autoConnect: true,
       maxReconnectAttempts: 10,
       reconnectDelay: 5000,
       reconnectOnClose: true,

@@ -48,6 +48,7 @@ type NuxtEasyWebSocketPlugin = {
   connectionStatus: ComputedRef<"connecting" | "connected" | "closing" | "disconnected" | "unknown">
   maxReconnectAttemptsReached: ComputedRef<boolean>
 
+  connect: () => void
   disconnect: () => void | undefined
   forceReconnect: () => void
 
@@ -58,6 +59,7 @@ type NuxtEasyWebSocketPlugin = {
       state: Readonly<Ref<EasyWSClientState>>
       connectionStatus: ComputedRef<"connecting" | "connected" | "closing" | "disconnected" | "unknown">
       maxReconnectAttemptsReached: ComputedRef<boolean>
+      connect: () => void
       disconnect: () => void | undefined
       forceReconnect: () => void
     }

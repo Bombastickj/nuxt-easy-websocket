@@ -18,6 +18,7 @@ export function createWS(
   socketName: string,
   url: string | (() => string),
   config: {
+    autoConnect: boolean
     reconnectOnClose: boolean
     maxReconnectAttempts: number
     reconnectDelay: number
@@ -32,7 +33,7 @@ export function createWS(
     reconnectCountdown: null,
     lastError: null,
     connectionAttempts: 0,
-    readyState: 0, // WS_STATES.CONNECTING
+    readyState: config.autoConnect ? WS_STATES.CONNECTING : WS_STATES.CLOSED,
   })
 
   // Computed properties for derived state
@@ -114,6 +115,7 @@ export function createWS(
     // check if socket is already connected
     if (socket?.readyState === WS_STATES.OPEN) return
 
+    // Prepare a new promise so that send() will wait until 'open'
     initResolver()
 
     const resolvedURL = typeof url === 'string' ? url : url()
@@ -240,7 +242,7 @@ export function createWS(
 
   // Initialize the plugin
   if (import.meta.client) initResolver()
-  onNuxtReady(initWebSocket)
+  onNuxtReady(config.autoConnect ? initWebSocket : () => { })
 
   // Expose public API
   return {
@@ -248,6 +250,7 @@ export function createWS(
     state: readonly(state),
     connectionStatus,
     maxReconnectAttemptsReached,
+    connect: initWebSocket,
     disconnect: () => socket?.close(),
     forceReconnect,
   }

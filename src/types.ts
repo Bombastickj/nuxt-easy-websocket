@@ -7,6 +7,12 @@ export * from './runtime/shared-types'
  */
 export type NuxtEasyWebSocketConnectionOptions = {
   /**
+   * Toggle automatic opening of the WebSocket connection on client load
+   * @default true
+   */
+  autoConnect?: boolean
+
+  /**
    * Maximum number of reconnection attempts when connection is lost
    * @default 10
    */

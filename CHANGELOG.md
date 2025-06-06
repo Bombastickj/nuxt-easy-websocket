@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.3.4
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.3...v3.3.4)
+
+### 🩹 Fixes
+
+- **type-gen:** Use camelCase for route handler names ([2689eaa](https://github.com/Bombastickj/nuxt-easy-websocket/commit/2689eaa))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.3.3
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.2...v3.3.3)

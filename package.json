@@ -1,6 +1,6 @@
 {
   "name": "nuxt-easy-websocket",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "Easy WebSocket integration module for nuxt",
   "repository": {
     "type": "git",

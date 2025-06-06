@@ -130,6 +130,15 @@ export function createWS(
   }
 
   /**
+   * Closes the socket.
+   * @param keepClosed if `true` prevents any automatic reconnects
+   */
+  function disconnect(keepClosed = false) {
+    if (keepClosed) state.value.connectionAttempts = config.maxReconnectAttempts
+    socket?.close()
+  }
+
+  /**
    * Handles the WebSocket 'open' event
    */
   function handleOpen() {
@@ -250,7 +259,7 @@ export function createWS(
     connectionStatus,
     maxReconnectAttemptsReached,
     connect: initWebSocket,
-    disconnect: () => socket?.close(),
+    disconnect,
     forceReconnect,
   }
 }

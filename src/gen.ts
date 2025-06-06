@@ -50,7 +50,7 @@ type NuxtEasyWebSocketPlugin = {
   maxReconnectAttemptsReached: ComputedRef<boolean>
 
   connect: () => void
-  disconnect: () => void | undefined
+  disconnect: (keepClosed?: boolean) => void | undefined
   forceReconnect: () => void
 
   // External WebSockets
@@ -61,7 +61,7 @@ type NuxtEasyWebSocketPlugin = {
       connectionStatus: ComputedRef<"connecting" | "connected" | "closing" | "disconnected" | "unknown">
       maxReconnectAttemptsReached: ComputedRef<boolean>
       connect: () => void
-      disconnect: () => void | undefined
+      disconnect: (keepClosed?: boolean) => void | undefined
       forceReconnect: () => void
     }
   }

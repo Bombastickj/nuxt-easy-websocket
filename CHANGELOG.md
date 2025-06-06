@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.3.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.0...v3.3.1)
+
+### 🩹 Fixes
+
+- Add quotes to external-socket keys in generated types ([abc36df](https://github.com/Bombastickj/nuxt-easy-websocket/commit/abc36df))
+
+### 🏡 Chore
+
+- Bump package version to 3.3.0 ([6be361c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/6be361c))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.3.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.2.1...v3.3.0)

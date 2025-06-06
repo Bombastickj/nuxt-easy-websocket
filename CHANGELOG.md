@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v3.3.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.2.1...v3.3.0)
+
+### 🚀 Enhancements
+
+- **auto-connect:** Added configuration to toggle auto-connect of a socket connection ([e832895](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e832895))
+
+### 🩹 Fixes
+
+- **external-socket:** Fixed incorrect initialization of external socket connections ([7bedfea](https://github.com/Bombastickj/nuxt-easy-websocket/commit/7bedfea))
+
+### 🏡 Chore
+
+- Update dependencies ([aa0069d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/aa0069d))
+
+### 🎨 Styles
+
+- Add missing comma in runtime config options ([c185d43](https://github.com/Bombastickj/nuxt-easy-websocket/commit/c185d43))
+- Comment out debug logs in WebSocket creation ([4e35ff9](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4e35ff9))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.2.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.2.0...v3.2.1)

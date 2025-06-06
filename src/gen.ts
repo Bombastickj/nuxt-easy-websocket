@@ -19,7 +19,7 @@ declare module '#nuxt-easy-websocket/routes' {
     ${serverRoutes.map(route => `'${route.routePath}': Parameters<typeof ${genDynamicImport(route.filePath, { wrapper: false, singleQuotes: true })}.default>[0]['data']`).join('\n    ')}
   }
   interface EasyWSExternalRoutes {
-    ${Object.keys(clientRoutes).filter(key => key !== 'default').map(key => `${key}: { }`).join('\n    ')}
+    ${Object.keys(clientRoutes).filter(key => key !== 'default').map(key => `'${key}': { }`).join('\n    ')}
   }
 }
 `

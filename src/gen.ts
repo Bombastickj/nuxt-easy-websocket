@@ -99,7 +99,7 @@ export function generateClientEvents(
 ${Object.keys(clientRoutes).flatMap(key => clientRoutes[key].map(route => genImport(route.filePath, `${key}_${route.name}`, { singleQuotes: true }))).join('\n')}
 
 export const clientRoutes = {
-  ${Object.keys(clientRoutes).map(key => `${key}: [${clientRoutes[key].map(route => `{ name: '${route.routePath}', handler: ${key}_${route.name} }`).join(',\n  ')}]`).join(',\n  ')}
+  ${Object.keys(clientRoutes).map(key => `'${key}': [${clientRoutes[key].map(route => `{ name: '${route.routePath}', handler: ${key}_${route.name} }`).join(',\n  ')}]`).join(',\n  ')}
 }
 `
   // Add the generated types to the Nuxt build

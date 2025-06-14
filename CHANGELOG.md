@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.5.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.4.0...v3.5.0)
+
+### 🚀 Enhancements
+
+- **external-sockets:** Add dynamic URL setting for WebSocket creation ([abb9b9f](https://github.com/Bombastickj/nuxt-easy-websocket/commit/abb9b9f))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.4.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.3.4...v3.4.0)

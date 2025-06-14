@@ -16,7 +16,7 @@ const WS_STATES = {
 
 export function createWS(
   socketName: string,
-  url: string | (() => string),
+  url: string | (() => string) | null,
   config: {
     autoConnect: boolean
     reconnectOnClose: boolean
@@ -56,6 +56,7 @@ export function createWS(
   })
 
   // Private variables for socket management
+  let wsURL: string | (() => string) | null = url
   let socket: WebSocket | null = null
   let socketOpenPromise: Promise<void> | null = null
   let socketOpenResolve: (() => void) | null = null
@@ -118,8 +119,13 @@ export function createWS(
     // Prepare a new promise so that send() will wait until 'open'
     initResolver()
 
-    const resolvedURL = typeof url === 'string' ? url : url()
+    // Check if wsURL is set
+    if (typeof wsURL !== 'function' && !wsURL) {
+      throw new Error(`[ClientSocket]: Missing websocket url. Checkout your 'nuxt.config.ts' or use 'setURL()' before connecting.`)
+    }
+
     // console.log(`[ClientSocket]: Attempting to connect to ${resolvedURL}`)
+    const resolvedURL = typeof wsURL === 'string' ? wsURL : wsURL()
     socket = new WebSocket(resolvedURL)
     updateReadyState(socket.readyState)
 
@@ -127,6 +133,15 @@ export function createWS(
     socket.addEventListener('close', handleClose)
     socket.addEventListener('error', handleError)
     socket.addEventListener('message', handleMessage)
+  }
+
+  /**
+   * Set the WebSocket URL dynamically.
+   *
+   * @param newUrl - The new WebSocket URL to use when connecting.
+   */
+  function setURL(newUrl: string) {
+    wsURL = newUrl
   }
 
   /**
@@ -261,5 +276,6 @@ export function createWS(
     connect: initWebSocket,
     disconnect,
     forceReconnect,
+    setURL,
   }
 }

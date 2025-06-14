@@ -80,7 +80,7 @@ export type NuxtEasyWebSocketOptions = {
    * Add external websockets
    */
   externalSockets?: Record<string, {
-    url: string
+    url: string | null
     ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat'>
   }>
 }

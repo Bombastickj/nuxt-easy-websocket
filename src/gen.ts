@@ -63,6 +63,7 @@ type NuxtEasyWebSocketPlugin = {
       connect: () => void
       disconnect: (keepClosed?: boolean) => void | undefined
       forceReconnect: () => void
+      setURL: (url: string) => void
     }
   }
 }

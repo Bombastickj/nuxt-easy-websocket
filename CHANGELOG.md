@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.5.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.5.0...v3.5.1)
+
+### 🩹 Fixes
+
+- **manual-dc:** No proper reset after disconnect ([88b5a8c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/88b5a8c))
+
+### 🏡 Chore
+
+- Upgrade package versions ([3c96b88](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3c96b88))
+- **lint:** Improved incorrect type imports ([da56eb7](https://github.com/Bombastickj/nuxt-easy-websocket/commit/da56eb7))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.5.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.4.0...v3.5.0)

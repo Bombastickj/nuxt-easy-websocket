@@ -60,7 +60,41 @@ export function createWS(
   let socket: WebSocket | null = null
   let socketOpenPromise: Promise<void> | null = null
   let socketOpenResolve: (() => void) | null = null
+  let socketOpenReject: ((reason?: unknown) => void) | null = null
   let countdownInterval: number | null = null
+  let manuallyClosed = false
+
+  /**
+   * Initializes the promise resolver for handling socket connection
+   * This is used when 'send' is called before the socket is ready
+   */
+  function initResolver() {
+    if (socketOpenResolve) return
+
+    // create new socketOpenPromise
+    socketOpenPromise = new Promise<void>((resolve, reject) => {
+      socketOpenResolve = resolve
+      socketOpenReject = reject
+    })
+  }
+
+  function cleanupSocket() {
+    manuallyClosed = false
+
+    if (!socket) return
+    socket.removeEventListener('open', handleOpen)
+    socket.removeEventListener('close', handleClose)
+    socket.removeEventListener('error', handleError)
+    socket.removeEventListener('message', handleMessage)
+    socket = null
+  }
+
+  /**
+   * Updates the WebSocket ready state and triggers relevant state updates
+   */
+  function updateReadyState(newState: number) {
+    state.value.readyState = newState
+  }
 
   /**
    * Attempts to reconnect to the WebSocket server with a countdown
@@ -92,29 +126,12 @@ export function createWS(
     }, interval)
   }
 
-  /**
-   * Updates the WebSocket ready state and triggers relevant state updates
-   */
-  function updateReadyState(newState: number) {
-    state.value.readyState = newState
-  }
-
-  /**
-   * Initializes the promise resolver for handling socket connection
-   * This is used when 'send' is called before the socket is ready
-   */
-  function initResolver() {
-    if (socketOpenResolve) return
-
-    // create new socketOpenPromise
-    socketOpenPromise = new Promise<void>((resolve) => {
-      socketOpenResolve = resolve
-    })
-  }
-
   function initWebSocket() {
     // check if socket is already connected
     if (socket?.readyState === WS_STATES.OPEN) return
+
+    // cleanup any previous created socket
+    cleanupSocket()
 
     // Prepare a new promise so that send() will wait until 'open'
     initResolver()
@@ -136,24 +153,6 @@ export function createWS(
   }
 
   /**
-   * Set the WebSocket URL dynamically.
-   *
-   * @param newUrl - The new WebSocket URL to use when connecting.
-   */
-  function setURL(newUrl: string) {
-    wsURL = newUrl
-  }
-
-  /**
-   * Closes the socket.
-   * @param keepClosed if `true` prevents any automatic reconnects
-   */
-  function disconnect(keepClosed = false) {
-    if (keepClosed) state.value.connectionAttempts = config.maxReconnectAttempts
-    socket?.close()
-  }
-
-  /**
    * Handles the WebSocket 'open' event
    */
   function handleOpen() {
@@ -167,7 +166,7 @@ export function createWS(
 
     // Resolve any pending send operations
     socketOpenResolve?.()
-    socketOpenResolve = null
+    socketOpenResolve = socketOpenReject = null
   }
 
   /**
@@ -175,11 +174,15 @@ export function createWS(
    */
   function handleClose(event: CloseEvent) {
     const closeMessage = `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'No reason provided'})`
-    // console.warn(`[ClientSocket]: ${closeMessage}`)
     state.value.lastError = closeMessage
     updateReadyState(WS_STATES.CLOSED)
 
-    if (config.reconnectOnClose) attemptReconnect()
+    socketOpenReject?.(new Error(closeMessage))
+    socketOpenResolve = socketOpenReject = null
+    initResolver()
+
+    // only reconnect if user didn't manually close
+    if (config.reconnectOnClose && !manuallyClosed) attemptReconnect()
   }
 
   /**
@@ -187,12 +190,10 @@ export function createWS(
    */
   function handleError(error: Event | ErrorEvent) {
     const errorMessage = error instanceof ErrorEvent ? error.message : 'WebSocket connection error'
-    console.error('[ClientSocket]: WebSocket error:', errorMessage)
     state.value.lastError = errorMessage
 
-    if (socket && socket.readyState !== WS_STATES.CLOSED) {
-      socket.close()
-    }
+    socketOpenReject?.(new Error(errorMessage))
+    socket?.close()
   }
 
   /**
@@ -230,16 +231,6 @@ export function createWS(
   }
 
   /**
-   * Forces a reconnection attempt regardless of current state
-   */
-  function forceReconnect() {
-    if (countdownInterval !== null) clearInterval(countdownInterval)
-    state.value.reconnectCountdown = null
-    state.value.connectionAttempts++
-    initWebSocket()
-  }
-
-  /**
    * Sends a typed message through the WebSocket
    * Will wait for connection if socket is currently connecting
    */
@@ -249,18 +240,57 @@ export function createWS(
 
     if (state.value.readyState === WS_STATES.OPEN) {
       socket?.send(JSON.stringify({ name, data }))
+      return
     }
-    else {
-      if (!socketOpenPromise) {
-        console.error('[ClientSocket]: socketOpenPromise is not set.')
-        return
-      }
 
-      // we wait until a socket connection has been made
-      await socketOpenPromise
-
-      socket?.send(JSON.stringify({ name, data }))
+    if (!socketOpenPromise) {
+      console.error('[ClientSocket]: socketOpenPromise is not set.')
+      return
     }
+
+    // we wait until a socket connection has been made
+    await socketOpenPromise
+
+    socket?.send(JSON.stringify({ name, data }))
+  }
+
+  /**
+   * Closes the socket.
+   * @param keepClosed if `true` prevents any automatic reconnects
+   */
+  function disconnect(keepClosed = false) {
+    if (countdownInterval !== null) {
+      clearInterval(countdownInterval)
+      countdownInterval = null
+    }
+
+    // mark that we shouldn't auto-reconnect
+    manuallyClosed = keepClosed
+
+    // close socket (triggers handleClose)
+    socket?.close()
+  }
+
+  /**
+   * Forces a reconnection attempt regardless of current state
+   */
+  function forceReconnect() {
+    if (countdownInterval !== null) {
+      clearInterval(countdownInterval)
+      countdownInterval = null
+    }
+    state.value.reconnectCountdown = null
+    state.value.connectionAttempts++
+    initWebSocket()
+  }
+
+  /**
+   * Set the WebSocket URL dynamically.
+   *
+   * @param newUrl - The new WebSocket URL to use when connecting.
+   */
+  function setURL(newUrl: string) {
+    wsURL = newUrl
   }
 
   // Initialize the plugin

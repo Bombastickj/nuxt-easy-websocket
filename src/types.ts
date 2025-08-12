@@ -52,7 +52,7 @@ export type NuxtEasyWebSocketConnectionOptions = {
  * Main configuration options for the NuxtEasyWebSocket module.
  * Defines directories, routing behavior, WebSocket settings, and external connections.
  */
-export type NuxtEasyWebSocketOptions = {
+export type NuxtEasyWebSocketModuleOptions = {
   /**
    * Change the default directory for reading **.{js|ts} files inside src directory
    * @default 'socket'
@@ -97,9 +97,13 @@ export type NuxtEasyWebSocketRoute = { filePath: string, routePath: string, name
 export interface NuxtEasyWebSocketContext {
   resolver: Resolver
   logger: ReturnType<(typeof import('@nuxt/kit'))['useLogger']>
-  userOptions: NuxtEasyWebSocketOptions
-  options: Required<NuxtEasyWebSocketOptions>
-  clientRoutes: Record<string, NuxtEasyWebSocketRoute[]>
+  userOptions: NuxtEasyWebSocketModuleOptions
+  options: Required<NuxtEasyWebSocketModuleOptions>
+  clientRoutes: {
+    default: NuxtEasyWebSocketRoute[]
+  } & {
+    [key: string]: NuxtEasyWebSocketRoute[]
+  }
   serverRoutes: NuxtEasyWebSocketRoute[]
   serverConnection: NuxtEasyWebSocketRoute[]
   watchingPaths: string[]
@@ -118,14 +122,14 @@ export interface NuxtEasyWebSocketPublicRuntimeConfig {
    *
    * @internal
    */
-  ws: DeepRequired<NuxtEasyWebSocketOptions['ws']>
+  ws: DeepRequired<NuxtEasyWebSocketModuleOptions['ws']>
 
   /**
    * Overwritten at build time, used to pass options to runtime
    *
    * @internal
    */
-  externalSockets?: NuxtEasyWebSocketOptions['externalSockets']
+  externalSockets?: NuxtEasyWebSocketModuleOptions['externalSockets']
 }
 
 declare module '@nuxt/schema' {

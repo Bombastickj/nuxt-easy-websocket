@@ -1,16 +1,17 @@
-import { relative, resolve } from 'pathe'
-import defu from 'defu'
+import pathe from 'pathe'
 import { defineNuxtModule, updateTemplates } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
-import type { NuxtEasyWebSocketOptions } from './types'
 import { createContext } from './context'
-import { prepareLayers } from './prepare/layers'
-import { generateClientEvents, generatePluginTypes, generateRouteTypes, generateServerEvents } from './gen'
 import { prepareRuntime } from './prepare/runtime'
+import { prepareLayers } from './prepare/layers'
+
+import { generateClientEvents, generatePluginTypes, generateRouteTypes, generateServerEvents } from './gen'
+
+import type { NuxtEasyWebSocketModuleOptions } from './types'
 
 export * from './types'
 
-export default defineNuxtModule<NuxtEasyWebSocketOptions>({
+export default defineNuxtModule<NuxtEasyWebSocketModuleOptions>({
   meta: {
     name: NUXT_EASY_WEBSOCKET_MODULE_ID,
     configKey: 'easyWebSocket',
@@ -37,8 +38,8 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
   async setup(_options, _nuxt) {
     const ctx = createContext(_options)
     prepareRuntime(ctx, _nuxt)
-
     await prepareLayers(ctx, _nuxt)
+
     generateRouteTypes(ctx, _nuxt)
     generatePluginTypes(ctx)
     generateClientEvents(ctx, _nuxt)
@@ -48,7 +49,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     if (_nuxt.options.dev) {
       let debounceTimeout: NodeJS.Timeout | null = null
       _nuxt.hook('builder:watch', async (_, path) => {
-        path = relative(_nuxt.options.rootDir, resolve(_nuxt.options.rootDir, path))
+        path = pathe.relative(_nuxt.options.rootDir, pathe.resolve(_nuxt.options.rootDir, path))
         if (ctx.watchingPaths.filter(p => path.startsWith(p)).length === 0) return
 
         if (debounceTimeout) clearTimeout(debounceTimeout)

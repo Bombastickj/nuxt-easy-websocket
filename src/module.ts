@@ -5,8 +5,9 @@ import { createContext } from './context'
 import { prepareRuntime } from './prepare/runtime'
 import { prepareLayers } from './prepare/layers'
 
-import { generatePluginTypes, generateRouteTypes, generateServerEvents } from './gen'
+import { generatePluginTypes, generateRouteTypes } from './gen'
 import { generateClientEvents } from './gen/client-events'
+import { generateServerEvents } from './gen/server-events'
 
 import type { NuxtEasyWebSocketModuleOptions } from './types'
 

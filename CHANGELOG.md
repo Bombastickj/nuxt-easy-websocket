@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.0.0-alpha.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha...v4.0.0-alpha.1)
+
+### 🩹 Fixes
+
+- **types:** Added generics to improve send function typing ([ca81898](https://github.com/Bombastickj/nuxt-easy-websocket/commit/ca81898))
+
+### 🏡 Chore
+
+- Bump alpha version ([fd30696](https://github.com/Bombastickj/nuxt-easy-websocket/commit/fd30696))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.5.1...v4.0.0-alpha)

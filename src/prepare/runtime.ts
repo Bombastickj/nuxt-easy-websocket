@@ -1,9 +1,18 @@
 import defu from 'defu'
-import { addImports, addPlugin, addServerImports, addServerHandler, addServerPlugin } from '@nuxt/kit'
+import {
+  addImports,
+  addPlugin,
+  addServerImports,
+  addServerHandler,
+  addServerPlugin,
+} from '@nuxt/kit'
+
 import type { Nuxt } from 'nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
 
-export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, nuxt: Nuxt) {
+export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
+  const { resolver, options } = ctx
+
   // Add runtime configuration
   nuxt.options.runtimeConfig.public.easyWebSocket = defu(
     nuxt.options.runtimeConfig.public.easyWebSocket,
@@ -61,5 +70,12 @@ export function prepareRuntime({ resolver, options }: NuxtEasyWebSocketContext, 
   addServerHandler({
     route: '/_ws',
     handler: resolver.resolve('./runtime/server/routes/_ws'),
+  })
+
+  // activate nitro websocket
+  nuxt.hook('nitro:config', (nitroConfig) => {
+    nitroConfig.experimental = defu(nitroConfig.experimental, {
+      websocket: true,
+    })
   })
 }

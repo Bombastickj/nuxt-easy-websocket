@@ -36,14 +36,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
   },
   async setup(_options, _nuxt) {
     const ctx = createContext(_options)
-
     prepareRuntime(ctx, _nuxt)
-
-    _nuxt.hook('nitro:config', (nitroConfig) => {
-      nitroConfig.experimental = defu(nitroConfig.experimental, {
-        websocket: true,
-      })
-    })
 
     await prepareLayers(ctx, _nuxt)
     generateRouteTypes(ctx, _nuxt)

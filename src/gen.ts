@@ -106,7 +106,7 @@ export const clientRoutes = {
 `
   // Add the generated types to the Nuxt build
   const { dst } = addTemplate({
-    filename: 'modules/nuxt-easy-websocket-client.mts',
+    filename: 'module/nuxt-easy-websocket-client.mts',
     getContents: () => generatedTemplate,
     write: true,
   })
@@ -127,7 +127,7 @@ declare module '#nuxt-easy-websocket/client' {
 `
   // Add the type template to nuxt
   addTypeTemplate({
-    filename: 'modules/nuxt-easy-websocket-client.d.ts',
+    filename: 'module/nuxt-easy-websocket-client.d.ts',
     getContents: () => generatedTypeTemplate,
     write: true,
   })
@@ -157,7 +157,7 @@ export const serverConnection = [
 `
   // Add the template to Nuxt build
   const { dst } = addTemplate({
-    filename: 'modules/nuxt-easy-websocket-server.mts',
+    filename: 'module/nuxt-easy-websocket-server.mts',
     getContents: () => generatedTemplate,
     write: true,
   })
@@ -180,7 +180,7 @@ declare module '#nuxt-easy-websocket/server' {
 `
   // Add the type template to Nitro
   addTypeTemplate({
-    filename: 'modules/nuxt-easy-websocket-server.d.ts',
+    filename: 'module/nuxt-easy-websocket-server.d.ts',
     getContents: () => generatedTypeTemplate,
   }, { nitro: true })
 }

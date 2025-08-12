@@ -1,4 +1,4 @@
-import { defineNitroPlugin, EasyWSSConnections, useRuntimeConfig } from '#imports'
+import { defineNitroPlugin, EasyWSConnections, useRuntimeConfig } from '#imports'
 
 export default defineNitroPlugin(() => {
   const options = useRuntimeConfig().public.easyWebSocket.ws
@@ -10,7 +10,7 @@ export default defineNitroPlugin(() => {
 
   // Initialize heartbeat on server
   const _heartbeatTimer = setInterval(() => {
-    for (const ewsPeer of EasyWSSConnections.values()) {
+    for (const ewsPeer of EasyWSConnections.values()) {
       const peer = ewsPeer.peer
 
       if (!peer.isAlive) {

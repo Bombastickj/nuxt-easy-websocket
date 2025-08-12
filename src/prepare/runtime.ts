@@ -70,7 +70,7 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
 
   // server heartbeat (if enabled)
   if (options.ws.heartbeat) {
-    addServerPlugin(resolver.resolve('./runtime/server/plugins/easyWSSHeartbeat'))
+    addServerPlugin(resolver.resolve('./runtime/server/plugins/easyWSHeartbeat'))
   }
 
   // server websocket handler

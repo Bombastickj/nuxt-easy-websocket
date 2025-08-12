@@ -1,6 +1,7 @@
 import type { Peer, Message, WSError } from 'crossws'
 import { EasyWSPeer } from '../utils/EasyWSPeer'
-// @ts-expect-error: Nuxt auto-imports may not be generated in some editor states
+/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- vue-tsc/editor disagree here */
+// @ts-ignore — see note above
 import { defineWebSocketHandler, EasyWSConnections, useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
 

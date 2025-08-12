@@ -17,9 +17,11 @@ const { send, disconnect } = useEasyWS()
 
 function sendPing() {
   send('ping', { timestamp: Date.now() })
+  send('types-test-0')
 }
 onMounted(() => {
   sendPing()
   // useNuxtApp().$easyWS.send('chat/send', {})
+  // useExternalWS('external-socket-example').send('example-ping')
 })
 </script>

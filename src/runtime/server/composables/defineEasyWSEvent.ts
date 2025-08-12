@@ -1,11 +1,11 @@
 import type { Serialize, Simplify } from 'nitropack/types'
 import type { EasyWSServerEventHandler, EasyWSServerEventHandlerRequest } from '../../shared-types'
-import type { EasyWSServerPeer } from '../utils/EasyWSServerPeer'
+import type { EasyWSPeer } from '../utils/EasyWSPeer'
 
 export function defineEasyWSEvent<
   Request extends EasyWSServerEventHandlerRequest,
 >(
-  handler: EasyWSServerEventHandler<EasyWSServerPeer, Simplify<Serialize<Request>>>,
-): EasyWSServerEventHandler<EasyWSServerPeer, Request> {
-  return handler as EasyWSServerEventHandler<EasyWSServerPeer, Request>
+  handler: EasyWSServerEventHandler<EasyWSPeer, Simplify<Serialize<Request>>>,
+): EasyWSServerEventHandler<EasyWSPeer, Request> {
+  return handler as EasyWSServerEventHandler<EasyWSPeer, Request>
 }

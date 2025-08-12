@@ -1,8 +1,8 @@
 import type { EasyWSServerConnectionHandler } from '../../shared-types'
-import type { EasyWSServerPeer } from '../utils/EasyWSServerPeer'
+import type { EasyWSPeer } from '../utils/EasyWSPeer'
 
 export function defineEasyWSConnection(
-  handler: EasyWSServerConnectionHandler<EasyWSServerPeer>,
-): EasyWSServerConnectionHandler<EasyWSServerPeer> {
+  handler: EasyWSServerConnectionHandler<EasyWSPeer>,
+): EasyWSServerConnectionHandler<EasyWSPeer> {
   return handler
 }

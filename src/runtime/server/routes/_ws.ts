@@ -1,5 +1,5 @@
 import type { Peer, Message, WSError } from 'crossws'
-import { EasyWSServerPeer } from '../utils/EasyWSServerPeer'
+import { EasyWSPeer } from '../utils/EasyWSPeer'
 // @ts-expect-error: Unreachable code error
 import { defineWebSocketHandler, EasyWSConnections, useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
@@ -11,7 +11,7 @@ export default defineWebSocketHandler({
     // init heartbeat liveness for each new connection
     peer.isAlive = true
 
-    const ewsPeer = new EasyWSServerPeer(peer)
+    const ewsPeer = new EasyWSPeer(peer)
     EasyWSConnections.set(peer.id, ewsPeer)
 
     const openCon = serverConnection.filter(con => con.type === 'open')

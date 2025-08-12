@@ -27,7 +27,7 @@ export interface EasyWSClientEventHandler<
 // ─────────────── Server types ─────────────── //
 // EasyWSServerConnection
 export interface EasyWSServerConnection<Peer = unknown> {
-  peer: Peer // InstanceType<typeof EasyWSServerPeer>
+  peer: Peer
 }
 export interface EasyWSServerConnectionHandler<Peer = unknown> {
   (event: EasyWSServerConnection<Peer>): Promise<void> | void

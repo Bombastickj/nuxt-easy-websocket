@@ -1,7 +1,7 @@
 import type { Peer } from 'crossws'
 import type { EasyWSClientRoutes } from '#nuxt-easy-websocket/routes'
 
-export class EasyWSServerPeer {
+export class EasyWSPeer {
   peer: Peer
 
   constructor(peer: Peer) {

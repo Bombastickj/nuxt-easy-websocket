@@ -20,7 +20,5 @@ export function createContext(
     serverRoutes: [],
     serverConnection: [],
     watchingPaths: [],
-    tsProject: null,
-    tsChecker: null,
   }
 }

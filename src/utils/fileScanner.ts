@@ -1,9 +1,10 @@
 import fs from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import pathe from 'pathe'
 import { camelCase } from 'scule'
+import { extractGenericFromFile } from './oxc'
 
 import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute } from '../types'
-import { getDefaultExportDefineCall, getPayloadType, renderTypeStructural } from './ast'
 
 type ScanOptions = {
   recursive?: boolean
@@ -55,20 +56,12 @@ export async function scanDir(
         // Check if filename matches the regex pattern if provided
         if (fileRegex && !fileRegex.test(entry.name)) continue
 
-        const sourceFile = ctx.tsProject?.getSourceFile(entryPath)
-        if (!sourceFile) continue
-
-        const call = getDefaultExportDefineCall(sourceFile)
-        if (!call) continue
-
-        const payloadType = getPayloadType(call)
-        let type = 'undefined'
-        if (payloadType)
-          type = renderTypeStructural(payloadType, ctx.tsChecker!, sourceFile, { logger: ctx.logger })
+        const code = await readFile(entryPath, { encoding: 'utf8' })
+        const type = extractGenericFromFile(entryPath, code)
 
         // Found a valid ts/js file
         // Compute the file path without extension
-        const filePath = sourceFile.getFilePath().split(/\.(ts|js)$/)[0]!
+        const filePath = entryPath.split(/\.(ts|js)$/)[0]!
 
         // Compute the relative path from the baseDir
         const routePathRaw = pathe.relative(baseDir, filePath)

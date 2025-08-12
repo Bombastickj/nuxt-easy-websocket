@@ -1,5 +1,4 @@
 import type { Resolver } from '@nuxt/kit'
-import type { Project, TypeChecker } from 'ts-morph'
 
 export * from './runtime/shared-types'
 
@@ -108,8 +107,6 @@ export interface NuxtEasyWebSocketContext {
   serverRoutes: NuxtEasyWebSocketRoute[]
   serverConnection: NuxtEasyWebSocketRoute[]
   watchingPaths: string[]
-  tsProject: Project | null
-  tsChecker: TypeChecker | null
 }
 
 /**

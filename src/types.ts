@@ -89,7 +89,7 @@ export type NuxtEasyWebSocketModuleOptions = {
 /**
  * Represents a WebSocket route configuration with its file path, route path, and name
  */
-export type NuxtEasyWebSocketRoute = { filePath: string, routePath: string, name: string }
+export type NuxtEasyWebSocketRoute = { filePath: string, routePath: string, name: string, type: string }
 
 /**
  * Internal context for the NuxtEasyWebSocket module

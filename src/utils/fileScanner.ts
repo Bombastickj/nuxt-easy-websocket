@@ -1,10 +1,9 @@
 import fs from 'node:fs'
 import pathe from 'pathe'
-import defu from 'defu'
-import { findExportNames } from 'mlly'
 import { camelCase } from 'scule'
 
 import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute } from '../types'
+import { getDefaultExportDefineCall, getPayloadType, renderTypeStructural } from './ast'
 
 type ScanOptions = {
   recursive?: boolean
@@ -15,25 +14,27 @@ type ScanOptions = {
  * Recursively scans a directory for .ts or .js files that export 'default'.
  * @param ctx - The NuxtEasyWebSocketContext
  * @param dir - The directory to scan.
- * @param _options - Optional settings to control scanning behavior.
- * @param _options.recursive - Whether to scan subdirectories (true by default).
- * @param _options.fileRegex - Optional regex pattern to filter filenames.
+ * @param scanOptions - Optional settings to control scanning behavior.
+ * @param scanOptions.recursive - Whether to scan subdirectories (true by default).
+ * @param scanOptions.fileRegex - Optional regex pattern to filter filenames.
  * @returns An array of objects containing the resolved file path and its corresponding route path.
  */
-export async function scanDirectory(
+export async function scanDir(
   ctx: NuxtEasyWebSocketContext,
   dir: string,
-  _options?: ScanOptions,
-): Promise<NuxtEasyWebSocketRoute[]> {
-  const { recursive, fileRegex } = defu<ScanOptions, [ScanOptions | undefined]>({ recursive: true, fileRegex: undefined }, _options)
+  scanOptions: ScanOptions = {},
+) {
+  const { resolver, options } = ctx
+  const { recursive = true, fileRegex = undefined } = scanOptions
 
-  const fullDir = ctx.resolver.resolve(dir)
+  const fullDir = resolver.resolve(dir)
   const dirExists = await fs.promises
     .stat(fullDir)
     .then(stat => stat.isDirectory())
     .catch(() => false)
   if (!dirExists) return []
 
+  // found events
   const events: NuxtEasyWebSocketRoute[] = []
 
   /**
@@ -41,56 +42,48 @@ export async function scanDirectory(
    * @param currentDir - The current directory being traversed.
    * @param baseDir - The base directory to compute relative paths.
    */
-  const traverse = async (currentDir: string, baseDir: string) => {
+  const traverseDir = async (currentDir: string, baseDir: string | undefined = undefined) => {
+    if (!baseDir) baseDir = currentDir
+
+    // go through each entry (dir/file)
     const entries = await fs.promises.readdir(currentDir, { withFileTypes: true })
     for (const entry of entries) {
       const entryPath = pathe.join(currentDir, entry.name)
-      if (entry.isDirectory()) {
-        if (recursive) await traverse(entryPath, baseDir)
-      }
+
+      if (entry.isDirectory() && recursive) await traverseDir(entryPath, baseDir)
       else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.js'))) {
         // Check if filename matches the regex pattern if provided
-        if (fileRegex && !fileRegex.test(entry.name)) {
-          continue
-        }
+        if (fileRegex && !fileRegex.test(entry.name)) continue
 
-        try {
-          const fileContent = await fs.promises.readFile(entryPath, 'utf-8')
-          const exports = findExportNames(fileContent)
+        const sourceFile = ctx.tsProject?.getSourceFile(entryPath)
+        if (!sourceFile) continue
 
-          if (exports.includes('default')) {
-            // Compute the file path without extension
-            const filePath = entryPath.replace(/\.(ts|js)$/, '')
+        const call = getDefaultExportDefineCall(sourceFile)
+        if (!call) continue
 
-            // Compute the relative path from the baseDir
-            const routePathRaw = pathe.relative(baseDir, filePath)
+        const payloadType = getPayloadType(call)
+        let type = 'undefined'
+        if (payloadType)
+          type = renderTypeStructural(payloadType, ctx.tsChecker!, sourceFile, { logger: ctx.logger })
 
-            // Split the relative path into segments
-            // const segments = routePathRaw.split(pathe.sep)
-            // const lastSegment = segments[segments.length - 1]
-            // // If the last segment starts with "index", remove that prefix (and an optional following dot)
-            // if (lastSegment.startsWith('index')) {
-            //   segments[segments.length - 1] = lastSegment.replace(/^index(?:\.|$)/, '')
-            //   // Filter out any empty segments (if the file was exactly "index")
-            //   routePathRaw = segments.filter(Boolean).join(pathe.sep)
-            // }
+        // Found a valid ts/js file
+        // Compute the file path without extension
+        const filePath = sourceFile.getFilePath().split(/\.(ts|js)$/)[0]!
 
-            const name = camelCase(routePathRaw)
-            const routePath = routePathRaw.replace(
-              new RegExp(pathe.sep, 'g'),
-              ctx.options.delimiter,
-            )
+        // Compute the relative path from the baseDir
+        const routePathRaw = pathe.relative(baseDir, filePath)
 
-            events.push({ filePath, routePath, name })
-          }
-        }
-        catch (error) {
-          ctx.logger.warn(`Failed to parse exports from ${entryPath}:`, error)
-        }
+        const name = camelCase(routePathRaw)
+        const routePath = routePathRaw.replace(
+          new RegExp(pathe.sep, 'g'),
+          options.delimiter,
+        )
+
+        events.push({ filePath, routePath, name, type })
       }
     }
   }
 
-  await traverse(fullDir, fullDir)
+  await traverseDir(fullDir)
   return events
 }

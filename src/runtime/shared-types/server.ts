@@ -1,4 +1,11 @@
 // ─────────────── Server types ─────────────── //
+export type EasyWSServerArgsOptions = { compress?: boolean }
+// If payload can be undefined, make 'data' optional; otherwise require it.
+export type EasyWSServerArgs<TYPE, KEY extends keyof TYPE, OPTIONS extends object = EasyWSServerArgsOptions>
+  = undefined extends TYPE[KEY]
+    ? [name: KEY, data?: Exclude<TYPE[KEY], undefined>, options?: OPTIONS]
+    : [name: KEY, data: TYPE[KEY], options?: OPTIONS]
+
 // EasyWSServerConnection
 export interface EasyWSServerConnection<Peer = unknown> {
   peer: Peer // InstanceType<typeof EasyWSPeer>

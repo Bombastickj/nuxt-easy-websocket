@@ -1,5 +1,5 @@
 import pathe from 'pathe'
-import { Project, Node, ts, SyntaxKind } from 'ts-morph'
+import { Project, Node, ts } from 'ts-morph'
 
 import type { CallExpression, Expression, SourceFile, Type as MType, TypeChecker } from 'ts-morph'
 
@@ -97,12 +97,11 @@ export function renderTypeStructural(
 ): string {
   try {
     return _renderTypeStructural(type, checker, sourceFile, options, depth)
-  } catch (e: any) {
-    const msg =
-      `type render failed ` +
-      `in ${sourceFile.getBaseName()} | error: ${e?.message ?? e}`
+  }
+  catch (e) {
+    const msg = `type render failed in ${sourceFile.getBaseName()} | error: ${e instanceof Error ? e.message : e}`
 
-    options.logger?.warn?.(msg) ?? console.warn(msg)
+    options.logger?.warn(msg)
     return options.fallbackType ?? 'undefined'
   }
 }
@@ -124,7 +123,7 @@ function coerceSpecials(type: MType): string | undefined {
 function typeToStringNoCut(checker: TypeChecker, t: MType) {
   return checker.compilerObject.typeToString(
     t.compilerType,
-    /*enclosingNode*/ undefined,
+    /* enclosingNode */ undefined,
     ts.TypeFormatFlags.NoTruncation
     | ts.TypeFormatFlags.InTypeAlias
     | ts.TypeFormatFlags.UseFullyQualifiedType,
@@ -157,8 +156,8 @@ function _renderTypeStructural(
 
   // Try to use a global/builtin name instead of exploding
   const sfPath = sourceFile.getFilePath()
-  const foundSources = (type.getSymbol()?.getDeclarations() ?? []).filter(d => 
-    d.getSourceFile().getFilePath() !== sfPath
+  const foundSources = (type.getSymbol()?.getDeclarations() ?? []).filter(d =>
+    d.getSourceFile().getFilePath() !== sfPath,
   ).length > 0
   if (foundSources) return typeToStringNoCut(checker, type)
 
@@ -170,7 +169,7 @@ function _renderTypeStructural(
     return `[${args.join(', ')}]`
   }
 
-  // Array or ReadonlyArray  
+  // Array or ReadonlyArray
   if (type.isArray() || type.isReadonlyArray()) {
     const elem = type.getTypeArguments()[0]
 
@@ -196,30 +195,28 @@ function _renderTypeStructural(
     // Use apparent type here to expand many mapped/conditional outcomes into explicit props.
     const obj = type.getApparentType()
     const props = obj.getProperties()
-    
+
     // Index signatures
     const stringIndex = obj.getStringIndexType()
     const numberIndex = obj.getNumberIndexType()
-  
+
     const members: string[] = []
-  
+
     // Handle object named properties
     for (const p of props) {
       const name = p.getName()
-  
+
       // choose a location for accurate optional/readonly detection
       const decl = p.getValueDeclaration() ?? p.getDeclarations()[0]
-      decl?.getKind() === SyntaxKind.OptionalType
-      const isOptional = !!(p.getFlags() & ts.SymbolFlags.Optional)
-        || (!!decl && 'questionToken' in decl && !!(decl).questionToken)
-  
+      const isOptional = p.isOptional()
+
       // Resolve property type
       const propType = checker.getTypeOfSymbolAtLocation(p, decl ?? obj.getSymbol()?.getDeclarations()[0] ?? sourceFile)
       const rendered = renderTypeStructural(propType, checker, sourceFile, options, depth + 1)
-  
+
       members.push(`${name}${isOptional ? '?' : ''}: ${rendered};`)
     }
-  
+
     // Handle object index signatures
     if (stringIndex) {
       members.push(`[key: string]: ${renderTypeStructural(stringIndex, checker, sourceFile, options, depth + 1)};`)
@@ -227,7 +224,7 @@ function _renderTypeStructural(
     if (numberIndex) {
       members.push(`[index: number]: ${renderTypeStructural(numberIndex, checker, sourceFile, options, depth + 1)};`)
     }
-  
+
     if (members.length > 0) {
       return `{ ${members.join(' ')} }`
     }

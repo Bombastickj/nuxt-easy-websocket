@@ -1,4 +1,10 @@
 // ─────────────── Clientside types ─────────────── //
+// If payload can be undefined, make 'data' optional; otherwise require it.
+export type EasyWSClientArgs<TYPE, KEY extends keyof TYPE>
+  = undefined extends TYPE[KEY]
+    ? [name: KEY, data?: Exclude<TYPE[KEY], undefined>]
+    : [name: KEY, data: TYPE[KEY]]
+
 export interface EasyWSClientState {
   reconnectCountdown: number | null
   lastError: string | null

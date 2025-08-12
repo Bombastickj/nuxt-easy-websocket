@@ -211,7 +211,7 @@ export function createWS(
 
       // console.log('[ClientSocket]: Message received:', message.data)
       const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
-      const eventModule = clientRoutes[socketName].find(e => e.name === name)
+      const eventModule = clientRoutes[socketName]?.find(e => e.name === name)
 
       if (eventModule) {
         // Execute the handler associated with the event

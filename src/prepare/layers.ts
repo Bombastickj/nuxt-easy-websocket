@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import pathe from 'pathe'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
-import { scanDirectory } from '../utils/fileScanner'
+import { scanDir } from '../utils/fileScanner'
 
 export async function prepareLayers(
   ctx: NuxtEasyWebSocketContext,
@@ -13,21 +13,21 @@ export async function prepareLayers(
   // Go through each layer and find the socket directory
   const _layers = [...nuxt.options._layers].reverse()
   for (const layer of _layers) {
-    const clientSrcDir = pathe.join(layer.config.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir)
-    const serverSrcDir = pathe.join(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir)
+    const clientSrcDir = resolver.resolve(layer.config.srcDir, layer.config.easyWebSocket?.clientSrcDir || options.clientSrcDir)
+    const serverSrcDir = resolver.resolve(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir)
     const serverApiSrcDir = pathe.join(serverSrcDir, '/api')
 
-    // Add paths to watcher
+    // Add paths to watcher array
     watchingPaths.push(
       pathe.relative(nuxt.options.rootDir, clientSrcDir),
       pathe.relative(nuxt.options.rootDir, serverSrcDir),
     )
 
     // Scan client and server directories
-    clientRoutes['default'].push(...await scanDirectory(ctx, clientSrcDir))
-    serverRoutes.push(...await scanDirectory(ctx, serverApiSrcDir))
+    clientRoutes['default'].push(...await scanDir(ctx, clientSrcDir))
+    serverRoutes.push(...await scanDir(ctx, serverApiSrcDir))
     serverConnection.push(
-      ...await scanDirectory(ctx, serverSrcDir, {
+      ...await scanDir(ctx, serverSrcDir, {
         recursive: false,
         fileRegex: /^(open|close|error)\.(ts|js)$/,
       }),
@@ -52,7 +52,7 @@ export async function prepareLayers(
           )
 
           // Scan for event handlers with the socket name as namespace
-          clientRoutes[socketName] = await scanDirectory(ctx, externalClientDir)
+          clientRoutes[socketName] = await scanDir(ctx, externalClientDir)
         }
         else {
           // Add empty external entry, to still init a connection

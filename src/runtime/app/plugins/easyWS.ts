@@ -1,6 +1,7 @@
 import defu from 'defu'
 import { createWS } from '../composables/createWS'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import type { NuxtEasyWebSocketPublicRuntimeConfig } from '../../../types'
 
 export default defineNuxtPlugin((_nuxtApp) => {
   const config = useRuntimeConfig()
@@ -15,8 +16,9 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
   // Create external WebSocket connections if configured
   const externalSockets: { [key: string]: ReturnType<typeof createWS> } = {}
-  if (config.public.easyWebSocket.externalSockets) {
-    for (const [name, socketConfig] of Object.entries(config.public.easyWebSocket.externalSockets)) {
+  const configured = config.public.easyWebSocket.externalSockets as NuxtEasyWebSocketPublicRuntimeConfig['externalSockets']
+  if (configured) {
+    for (const [name, socketConfig] of Object.entries(configured)) {
       const mergedConfig = defu(
         socketConfig.ws,
         defaultWSConfig,

@@ -1,4 +1,5 @@
 export type {
+  EasyWSClientArgs,
   EasyWSClientState,
   EasyWSClientEvent,
   EasyWSClientEventHandlerRequest,
@@ -6,6 +7,7 @@ export type {
 } from './client'
 
 export type {
+  EasyWSServerArgs,
   EasyWSServerConnection,
   EasyWSServerConnectionHandler,
   EasyWSServerEvent,

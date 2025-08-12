@@ -7,6 +7,9 @@ import {
   addServerPlugin,
 } from '@nuxt/kit'
 
+import { ts } from 'ts-morph'
+import { buildProjectForNuxt } from '../utils/ast'
+
 import type { Nuxt } from 'nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
 
@@ -85,4 +88,12 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
       websocket: true,
     })
   })
+
+  // setup ts-morph context
+  const tsConfigFilePath = ts.findConfigFile(nuxt.options.rootDir, ts.sys.fileExists)
+  if (tsConfigFilePath) {
+    // ctx.tsconfigPath = tsConfigFilePath
+    ctx.tsProject = buildProjectForNuxt(tsConfigFilePath)
+    ctx.tsChecker = ctx.tsProject.getTypeChecker()
+  }
 }

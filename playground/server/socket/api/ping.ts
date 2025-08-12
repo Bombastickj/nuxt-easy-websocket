@@ -1,3 +1,3 @@
-export default defineEasyWSSEvent<{ timestamp: number }>((event) => {
+export default defineEasyWSEvent<{ timestamp: number }>((event) => {
   event.peer.send('pong', event.data)
 })

@@ -188,7 +188,7 @@ export default defineEasyWSConnection(({ peer }) => {
 
 ```ts
 // server/socket/api/message.ts
-export default defineEasyWSSEvent<{
+export default defineEasyWSEvent<{
   text: string
   userId: number
 }>(async ({ data, peer }) => {
@@ -306,7 +306,7 @@ WebSocket clients can subscribe to topics for pub/sub functionality:
 
 ```ts
 // server/socket/api/subscribe.ts
-export default defineEasyWSSEvent<{
+export default defineEasyWSEvent<{
   topic: string
 }>(async ({ data, peer }) => {
   // Subscribe client to the requested topic

@@ -1,8 +1,8 @@
-import { genDynamicImport, genImport } from 'knitwork'
-import { addTemplate, addTypeTemplate } from '@nuxt/kit'
-import { camelCase } from 'scule'
-import type { Nuxt } from '@nuxt/schema'
-import type { NuxtEasyWebSocketContext } from './types'
+import { addTypeTemplate } from '@nuxt/kit'
+import { genDynamicImport } from 'knitwork'
+
+import type { Nuxt } from 'nuxt/schema'
+import type { NuxtEasyWebSocketContext } from '../types'
 
 export function generateRouteTypes(
   { clientRoutes, serverRoutes }: NuxtEasyWebSocketContext,

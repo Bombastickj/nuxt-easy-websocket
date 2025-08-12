@@ -5,7 +5,7 @@ import { createContext } from './context'
 import { prepareRuntime } from './prepare/runtime'
 import { prepareLayers } from './prepare/layers'
 
-import { generateRouteTypes } from './gen'
+import { generateRouteTypes } from './gen/route-types'
 import { generatePluginTypes } from './gen/plugin-types'
 import { generateClientEvents } from './gen/client-events'
 import { generateServerEvents } from './gen/server-events'

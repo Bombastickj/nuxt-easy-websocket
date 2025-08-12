@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.0.0-alpha.2
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.1...v4.0.0-alpha.2)
+
+### 🔥 Performance
+
+- **types:** Moving from temporary ts-morph to oxc-parser ([eeb63e2](https://github.com/Bombastickj/nuxt-easy-websocket/commit/eeb63e2))
+
+### 🏡 Chore
+
+- Bump alpha release version ([ad87a0d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/ad87a0d))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha...v4.0.0-alpha.1)

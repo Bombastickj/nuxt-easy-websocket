@@ -8,13 +8,13 @@ export class EasyWSPeer {
     this.peer = peer
   }
 
-  send(...args: EasyWSServerArguments) {
+  send<T extends keyof EasyWSClientRoutes>(...args: EasyWSServerArguments<T>) {
     const [name, data, options] = args
     const body = data === undefined ? { name } : { name, data }
     return this.peer.send(JSON.stringify(body), options)
   }
 
-  publish(...args: EasyWSServerArguments) {
+  publish<T extends keyof EasyWSClientRoutes>(...args: EasyWSServerArguments<T>) {
     const [name, data, options] = args
     const body = data === undefined ? { name } : { name, data }
     return this.peer.publish(name, JSON.stringify(body), options)

@@ -1,6 +1,6 @@
 import type { Peer, Message, WSError } from 'crossws'
 import { EasyWSPeer } from '../utils/EasyWSPeer'
-// @ts-expect-error: Unreachable code error
+// @ts-expect-error: Nuxt auto-imports may not be generated in some editor states
 import { defineWebSocketHandler, EasyWSConnections, useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
 

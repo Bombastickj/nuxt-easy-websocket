@@ -15,8 +15,7 @@ export default defineNuxtModule<NuxtEasyWebSocketOptions>({
     name: NUXT_EASY_WEBSOCKET_MODULE_ID,
     configKey: 'easyWebSocket',
     compatibility: {
-      nuxt: '>=3.16.0',
-      bridge: false,
+      nuxt: '>=4.0.0',
     },
   },
   // Default configuration options of the Nuxt module

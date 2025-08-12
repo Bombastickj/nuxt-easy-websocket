@@ -1,6 +1,51 @@
 # Changelog
 
 
+## v4.0.0-alpha
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.5.1...v4.0.0-alpha)
+
+### 🚀 Enhancements
+
+- **ast-walking:** Add `ts-morph` & simple ast handling for type extraction ([f1cd23e](https://github.com/Bombastickj/nuxt-easy-websocket/commit/f1cd23e))
+- **typing:** Incooperate improved type resolving via ts-morph ([476cf2a](https://github.com/Bombastickj/nuxt-easy-websocket/commit/476cf2a))
+- **playground:** Added more test cases for correct type resolving ([d3e6e88](https://github.com/Bombastickj/nuxt-easy-websocket/commit/d3e6e88))
+
+### 💅 Refactors
+
+- **module:** Improved code structure ([dbd16b7](https://github.com/Bombastickj/nuxt-easy-websocket/commit/dbd16b7))
+- **module:** Improved code structure ([a431026](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a431026))
+- **server-composables:** ⚠️  `defineEasyWSSConnection` is now `defineEasyWSConnection` ([3d9718d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3d9718d))
+- **server-composables:** ⚠️  `defineEasyWSSEvent` is now `defineEasyWSEvent` ([3a78361](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3a78361))
+- **server-utils:** ⚠️  `EasyWSSConnections` is now `EasyWSConnections` ([0b1b9eb](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0b1b9eb))
+- **server-utils:** ⚠️  `EasyWSServerPeer` is now `EasyWSPeer` ([b8198e6](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b8198e6))
+- **server-plugins:** `easyWSSHeartbeat` is now `easyWSHeartbeat` ([82301e0](https://github.com/Bombastickj/nuxt-easy-websocket/commit/82301e0))
+- **server-utils:** Fix types ([a26dc93](https://github.com/Bombastickj/nuxt-easy-websocket/commit/a26dc93))
+- **template-gen:** Moved `generateClientEvents` to seperate file ([0e17d19](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0e17d19))
+- **template-gen:** Moved `generateServerEvents` to seperate file ([3325610](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3325610))
+- **template-gen:** Moved `generatePluginTypes` to seperate file ([91db0de](https://github.com/Bombastickj/nuxt-easy-websocket/commit/91db0de))
+- **template-gen:** Moved `generateRouteTypes` to seperate file ([59808b1](https://github.com/Bombastickj/nuxt-easy-websocket/commit/59808b1))
+- Module code cleanup ([691175b](https://github.com/Bombastickj/nuxt-easy-websocket/commit/691175b))
+- **ts-expect-error:** IDE & VueTSC disagree with availability of imports ([54d33ae](https://github.com/Bombastickj/nuxt-easy-websocket/commit/54d33ae))
+
+### 🏡 Chore
+
+- **nuxt:** ⚠️  Upgraded to Nuxt v4 ([4b639c4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4b639c4))
+- Refactor module & types ([3ec1b23](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3ec1b23))
+- Refactor shared-types & template output dir ([5800cf5](https://github.com/Bombastickj/nuxt-easy-websocket/commit/5800cf5))
+
+#### ⚠️ Breaking Changes
+
+- **server-composables:** ⚠️  `defineEasyWSSConnection` is now `defineEasyWSConnection` ([3d9718d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3d9718d))
+- **server-composables:** ⚠️  `defineEasyWSSEvent` is now `defineEasyWSEvent` ([3a78361](https://github.com/Bombastickj/nuxt-easy-websocket/commit/3a78361))
+- **server-utils:** ⚠️  `EasyWSSConnections` is now `EasyWSConnections` ([0b1b9eb](https://github.com/Bombastickj/nuxt-easy-websocket/commit/0b1b9eb))
+- **server-utils:** ⚠️  `EasyWSServerPeer` is now `EasyWSPeer` ([b8198e6](https://github.com/Bombastickj/nuxt-easy-websocket/commit/b8198e6))
+- **nuxt:** ⚠️  Upgraded to Nuxt v4 ([4b639c4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4b639c4))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v3.5.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v3.5.0...v3.5.1)

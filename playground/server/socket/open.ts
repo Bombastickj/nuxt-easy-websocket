@@ -1,3 +1,3 @@
-export default defineEasyWSSConnection(() => {
+export default defineEasyWSConnection(() => {
   //   peer.subscribe('pong')
 })

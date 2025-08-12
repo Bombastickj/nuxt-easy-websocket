@@ -171,7 +171,7 @@ function sendExternalMessage() {
 
 ```ts
 // server/socket/open.ts
-export default defineEasyWSSConnection(({ peer }) => {
+export default defineEasyWSConnection(({ peer }) => {
   console.log(`New client connected: ${peer.peer.id}`)
   
   // Subscribe client to topics
@@ -179,7 +179,7 @@ export default defineEasyWSSConnection(({ peer }) => {
 })
 
 // server/socket/close.ts
-export default defineEasyWSSConnection(({ peer }) => {
+export default defineEasyWSConnection(({ peer }) => {
   console.log(`Client disconnected: ${peer.peer.id}`)
 })
 ```

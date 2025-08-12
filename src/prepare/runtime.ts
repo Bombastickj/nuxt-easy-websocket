@@ -47,8 +47,9 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
   // server composables
   addServerImports([
     {
-      from: resolver.resolve('./runtime/server/composables/defineEasyWSSConnection'),
-      name: 'defineEasyWSSConnection',
+      name: 'defineEasyWSConnection',
+      as: 'defineEasyWSConnection',
+      from: resolver.resolve('./runtime/server/composables/defineEasyWSConnection'),
     },
     {
       from: resolver.resolve('./runtime/server/composables/defineEasyWSSEvent'),

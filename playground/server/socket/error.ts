@@ -1,1 +1,1 @@
-export default defineEasyWSSConnection(() => { })
+export default defineEasyWSConnection(() => { })

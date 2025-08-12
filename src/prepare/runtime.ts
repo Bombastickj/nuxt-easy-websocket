@@ -57,8 +57,9 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
       from: resolver.resolve('./runtime/server/composables/defineEasyWSEvent'),
     },
     {
-      from: resolver.resolve('./runtime/server/utils/EasyWSSConnections'),
-      name: 'EasyWSSConnections',
+      name: 'EasyWSConnections',
+      as: 'EasyWSConnections',
+      from: resolver.resolve('./runtime/server/utils/EasyWSConnections'),
     },
     {
       from: resolver.resolve('./runtime/server/utils/EasyWSServerPeer'),

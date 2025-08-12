@@ -1,7 +1,7 @@
 import type { Peer, Message, WSError } from 'crossws'
 import { EasyWSServerPeer } from '../utils/EasyWSServerPeer'
 // @ts-expect-error: Unreachable code error
-import { defineWebSocketHandler, EasyWSSConnections, useRuntimeConfig } from '#imports'
+import { defineWebSocketHandler, EasyWSConnections, useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
 
 export default defineWebSocketHandler({
@@ -12,7 +12,7 @@ export default defineWebSocketHandler({
     peer.isAlive = true
 
     const ewsPeer = new EasyWSServerPeer(peer)
-    EasyWSSConnections.set(peer.id, ewsPeer)
+    EasyWSConnections.set(peer.id, ewsPeer)
 
     const openCon = serverConnection.filter(con => con.type === 'open')
     for (const con of openCon) {
@@ -34,7 +34,7 @@ export default defineWebSocketHandler({
 
     const eventModule = serverRoutes.find(e => e.name === name)
     if (eventModule) {
-      const ewsPeer = EasyWSSConnections.get(peer.id)
+      const ewsPeer = EasyWSConnections.get(peer.id)
 
       if (ewsPeer) {
         // Execute the handler associated with the event
@@ -52,8 +52,8 @@ export default defineWebSocketHandler({
     // console.log('[ServerSocket]: Disconnect: ' + peer)
     const closeCon = serverConnection.filter(con => con.type === 'close')
 
-    const ewsPeer = EasyWSSConnections.get(peer.id)
-    EasyWSSConnections.delete(peer.id)
+    const ewsPeer = EasyWSConnections.get(peer.id)
+    EasyWSConnections.delete(peer.id)
 
     if (ewsPeer) {
       for (const con of closeCon) {
@@ -64,8 +64,8 @@ export default defineWebSocketHandler({
   async error(peer: Peer, _error: WSError) {
     const errorCon = serverConnection.filter(con => con.type === 'error')
 
-    const ewsPeer = EasyWSSConnections.get(peer.id)
-    EasyWSSConnections.delete(peer.id)
+    const ewsPeer = EasyWSConnections.get(peer.id)
+    EasyWSConnections.delete(peer.id)
 
     if (ewsPeer) {
       for (const con of errorCon) {

@@ -217,7 +217,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   
   // Broadcast to all connected clients
-  for (const peer of EasyWSSConnections.values()) {
+  for (const peer of EasyWSConnections.values()) {
     await peer.send('notification', {
       title: 'Broadcast',
       message: body.message,

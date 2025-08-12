@@ -25,16 +25,19 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
   // client composables
   addImports([
     {
-      from: resolver.resolve('./runtime/app/composables/defineEasyWSEvent'),
       name: 'defineEasyWSEvent',
+      as: 'defineEasyWSEvent',
+      from: resolver.resolve('./runtime/app/composables/defineEasyWSEvent'),
     },
     {
-      from: resolver.resolve('./runtime/app/composables/useEasyWS'),
       name: 'useEasyWS',
+      as: 'useEasyWS',
+      from: resolver.resolve('./runtime/app/composables/useEasyWS'),
     },
     {
-      from: resolver.resolve('./runtime/app/composables/useExternalWS'),
       name: 'useExternalWS',
+      as: 'useExternalWS',
+      from: resolver.resolve('./runtime/app/composables/useExternalWS'),
     },
   ])
 

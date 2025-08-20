@@ -1,7 +1,8 @@
+import pathe from 'pathe'
 import fs from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import pathe from 'pathe'
 import { camelCase } from 'scule'
+import { SCRIPT_EXT_RE } from '../constants'
 import { extractGenericFromFile } from './oxc'
 
 import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute, RouteMap } from '../types'
@@ -68,7 +69,7 @@ export async function scanDir(
   return routeMap
 }
 
-export const stripExt = (p: string) => p.replace(/\.(ts|js)$/i, '')
+export const stripExt = (p: string) => p.replace(SCRIPT_EXT_RE, '')
 export async function buildRoute(
   ctx: NuxtEasyWebSocketContext,
   fileAbs: string,

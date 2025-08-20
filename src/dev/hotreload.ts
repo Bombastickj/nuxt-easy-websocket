@@ -1,6 +1,6 @@
 import pathe from 'pathe'
 import { updateTemplates } from '@nuxt/kit'
-import { MODULE_TMP_PATH } from '../constants'
+import { MODULE_TMP_PATH, SERVER_CONN_BASENAME_RE } from '../constants'
 import { buildRoute, stripExt } from '../utils/fileScanner'
 
 import type { Nuxt } from 'nuxt/schema'
@@ -20,7 +20,7 @@ function classify(ctx: NuxtEasyWebSocketContext, absPath: string): Kind {
     if (p.startsWith(L.serverDir + pathe.sep)) {
       const rel = pathe.relative(L.serverDir, p)
       const isTop = !rel.includes(pathe.sep)
-      if (isTop && /^(open|close|error)\.(ts|js)$/.test(rel)) {
+      if (isTop && SERVER_CONN_BASENAME_RE.test(rel)) {
         return { kind: 'serverConn', baseDir: L.serverDir }
       }
     }

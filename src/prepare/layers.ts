@@ -1,8 +1,10 @@
 import fs from 'node:fs'
 import pathe from 'pathe'
+import { scanDir } from '../utils/fileScanner'
+import { SERVER_CONN_BASENAME_RE } from '../constants'
+
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
-import { scanDir } from '../utils/fileScanner'
 
 export async function prepareLayers(
   ctx: NuxtEasyWebSocketContext,
@@ -26,7 +28,7 @@ export async function prepareLayers(
 
     const scannedServerConn = await scanDir(ctx, serverSrcDir, {
       recursive: false,
-      fileRegex: /^(open|close|error)\.(ts|js)$/,
+      fileRegex: SERVER_CONN_BASENAME_RE,
     })
     ctx.serverConnection = scannedServerConn
 

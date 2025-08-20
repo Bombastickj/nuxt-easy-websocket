@@ -10,3 +10,6 @@ export const MODULE_TMP_PATH = {
   serverEvents: 'module/nuxt-easy-websocket-server.mts',
   serverEventTypes: 'module/nuxt-easy-websocket-server.d.ts',
 } as const
+
+export const SCRIPT_EXT_RE = /\.(ts|js)$/i
+export const SERVER_CONN_BASENAME_RE = /^(open|close|error)\.(ts|js)$/i

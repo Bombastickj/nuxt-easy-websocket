@@ -20,7 +20,7 @@ function classify(ctx: NuxtEasyWebSocketContext, absPath: string): Kind {
     if (p.startsWith(L.serverDir + pathe.sep)) {
       const rel = pathe.relative(L.serverDir, p)
       const isTop = !rel.includes(pathe.sep)
-      if (isTop && /^(open|close|error)\.(ts|js)$/i.test(rel)) {
+      if (isTop && /^(open|close|error)\.(ts|js)$/.test(rel)) {
         return { kind: 'serverConn', baseDir: L.serverDir }
       }
     }

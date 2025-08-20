@@ -26,7 +26,7 @@ export async function prepareLayers(
 
     const scannedServerConn = await scanDir(ctx, serverSrcDir, {
       recursive: false,
-      fileRegex: /^(open|close|error)\.(ts|js)$/ ,
+      fileRegex: /^(open|close|error)\.(ts|js)$/,
     })
     ctx.serverConnection = scannedServerConn
 

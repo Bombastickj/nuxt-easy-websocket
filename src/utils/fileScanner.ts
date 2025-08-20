@@ -4,7 +4,7 @@ import pathe from 'pathe'
 import { camelCase } from 'scule'
 import { extractGenericFromFile } from './oxc'
 
-import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute } from '../types'
+import type { NuxtEasyWebSocketContext, NuxtEasyWebSocketRoute, RouteMap } from '../types'
 
 type ScanOptions = {
   recursive?: boolean
@@ -24,8 +24,8 @@ export async function scanDir(
   ctx: NuxtEasyWebSocketContext,
   dir: string,
   scanOptions: ScanOptions = {},
-) {
-  const { resolver, options } = ctx
+): Promise<RouteMap> {
+  const { resolver } = ctx
   const { recursive = true, fileRegex = undefined } = scanOptions
 
   const fullDir = resolver.resolve(dir)
@@ -33,10 +33,10 @@ export async function scanDir(
     .stat(fullDir)
     .then(stat => stat.isDirectory())
     .catch(() => false)
-  if (!dirExists) return []
+  if (!dirExists) return new Map()
 
-  // found events
-  const events: NuxtEasyWebSocketRoute[] = []
+  // found valid routes
+  const routeMap: RouteMap = new Map()
 
   /**
    * Recursively traverses directories and scans for files exporting 'default'.
@@ -56,27 +56,40 @@ export async function scanDir(
         // Check if filename matches the regex pattern if provided
         if (fileRegex && !fileRegex.test(entry.name)) continue
 
-        const code = await readFile(entryPath, { encoding: 'utf8' })
-        const type = extractGenericFromFile(entryPath, code)
+        const route = await buildRoute(ctx, entryPath, baseDir)
+        if (!route) continue
 
-        // Found a valid ts/js file
-        // Compute the file path without extension
-        const filePath = entryPath.split(/\.(ts|js)$/)[0]!
-
-        // Compute the relative path from the baseDir
-        const routePathRaw = pathe.relative(baseDir, filePath)
-
-        const name = camelCase(routePathRaw)
-        const routePath = routePathRaw.replace(
-          new RegExp(pathe.sep, 'g'),
-          options.delimiter,
-        )
-
-        events.push({ filePath, routePath, name, type })
+        routeMap.set(route.filePath, route)
       }
     }
   }
 
   await traverseDir(fullDir)
-  return events
+  return routeMap
 }
+
+export const stripExt = (p: string) => p.replace(/\.(ts|js)$/i, '')
+export async function buildRoute(
+  ctx: NuxtEasyWebSocketContext,
+  fileAbs: string,
+  baseDir: string
+): Promise<NuxtEasyWebSocketRoute | null> {
+  // Try to extract types
+  const code = await readFile(fileAbs, { encoding: 'utf8' })
+  const type = extractGenericFromFile(fileAbs, code)
+  if (type === null) return null
+  
+  // Compute the file path without extension
+  const filePath = stripExt(fileAbs)
+
+  // Compute the relative path from the baseDir
+  const routePathRaw = pathe.relative(baseDir, filePath)
+
+  const name = camelCase(routePathRaw)
+  const routePath = routePathRaw.replace(
+    new RegExp(pathe.sep, 'g'),
+    ctx.options.delimiter,
+  )
+
+  return { filePath, routePath, name, type }
+} 

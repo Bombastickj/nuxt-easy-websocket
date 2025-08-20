@@ -8,7 +8,7 @@ export async function prepareLayers(
   ctx: NuxtEasyWebSocketContext,
   nuxt: Nuxt,
 ) {
-  const { resolver, options, clientRoutes, serverRoutes, serverConnection, watchingPaths } = ctx
+  const { resolver, options, clientRoutes, layers } = ctx
 
   // Go through each layer and find the socket directory
   const _layers = [...nuxt.options._layers].reverse()
@@ -17,23 +17,21 @@ export async function prepareLayers(
     const serverSrcDir = resolver.resolve(layer.config.serverDir || nuxt.options.serverDir, layer.config.easyWebSocket?.serverSrcDir || options.serverSrcDir)
     const serverApiSrcDir = pathe.join(serverSrcDir, '/api')
 
-    // Add paths to watcher array
-    watchingPaths.push(
-      pathe.relative(nuxt.options.rootDir, clientSrcDir),
-      pathe.relative(nuxt.options.rootDir, serverSrcDir),
-    )
-
     // Scan client and server directories
-    clientRoutes['default'].push(...await scanDir(ctx, clientSrcDir))
-    serverRoutes.push(...await scanDir(ctx, serverApiSrcDir))
-    serverConnection.push(
-      ...await scanDir(ctx, serverSrcDir, {
-        recursive: false,
-        fileRegex: /^(open|close|error)\.(ts|js)$/,
-      }),
-    )
+    const scannedClientDefault = await scanDir(ctx, clientSrcDir)
+    clientRoutes.set('default', scannedClientDefault)
+    
+    const scannedServerRoutes = await scanDir(ctx, serverApiSrcDir)
+    ctx.serverRoutes = scannedServerRoutes
+
+    const scannedServerConn = await scanDir(ctx, serverSrcDir, {
+      recursive: false,
+      fileRegex: /^(open|close|error)\.(ts|js)$/ ,
+    })
+    ctx.serverConnection = scannedServerConn
 
     // Process external sockets if configured
+    const externalClientDirs: Record<string, string> = {}
     if (options.externalSockets) {
       for (const [socketName] of Object.entries(options.externalSockets)) {
         // Scan for external socket handlers in a subdirectory matching the socket name
@@ -46,19 +44,24 @@ export async function prepareLayers(
           .catch(() => false)
 
         if (externalDirExists) {
-          // Add external directory to watcher
-          watchingPaths.push(
-            pathe.relative(nuxt.options.rootDir, externalClientDir),
-          )
+          externalClientDirs[socketName] = resolver.resolve(externalClientDir)
 
           // Scan for event handlers with the socket name as namespace
-          clientRoutes[socketName] = await scanDir(ctx, externalClientDir)
+          clientRoutes.set(socketName, await scanDir(ctx, externalClientDir))
         }
         else {
           // Add empty external entry, to still init a connection
-          clientRoutes[socketName] = []
+          clientRoutes.set(socketName, new Map())
         }
       }
     }
+
+    // Save per-layer meta for classification during HMR
+    layers.push({
+      clientDir: clientSrcDir,
+      serverApiDir: serverApiSrcDir,
+      serverDir: serverSrcDir,
+      externalClientDirs,
+    })
   }
 }

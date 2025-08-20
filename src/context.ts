@@ -1,7 +1,10 @@
 import { createResolver, useLogger } from '@nuxt/kit'
-
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
-import type { NuxtEasyWebSocketModuleOptions, NuxtEasyWebSocketContext } from './types'
+
+import type {
+  NuxtEasyWebSocketModuleOptions,
+  NuxtEasyWebSocketContext,
+} from './types'
 
 export function createContext(
   userOptions: NuxtEasyWebSocketModuleOptions,
@@ -14,11 +17,9 @@ export function createContext(
     logger: useLogger(NUXT_EASY_WEBSOCKET_MODULE_ID),
     userOptions,
     options,
-    clientRoutes: {
-      default: [],
-    },
-    serverRoutes: [],
-    serverConnection: [],
-    watchingPaths: [],
+    layers: [],
+    clientRoutes: new Map([['default', new Map()]]),
+    serverRoutes: new Map(),
+    serverConnection: new Map(),
   }
 }

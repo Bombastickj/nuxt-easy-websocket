@@ -42,22 +42,28 @@ export function extractGenericFromFile(filename: string, code: string) {
   const { program } = parseSync(filename, code, opts)
 
   // index local type/interface declarations
-  type LocalMeta
-    = { kind: 'interface', range: [number, number] } // interface body (members only)
-      | { kind: 'alias', range: [number, number], isLiteral: boolean } // alias RHS
+  type LocalMeta =
+    | { kind: 'interface'; range: [number, number] } // interface body (members only)
+    | { kind: 'alias'; range: [number, number]; isLiteral: boolean } // alias RHS
 
   const locals = new Map<string, LocalMeta>()
 
   // Index local declarations
   for (const node of program.body) {
-    if (node.type === 'TSInterfaceDeclaration' && node.id?.type === 'Identifier') {
+    if (
+      node.type === 'TSInterfaceDeclaration' &&
+      node.id?.type === 'Identifier'
+    ) {
       // oxc's TSInterfaceBody.range usually excludes the outer { }
       const body = node.body
       const range = body.range
       if (range) locals.set(node.id.name, { kind: 'interface', range })
     }
 
-    if (node.type === 'TSTypeAliasDeclaration' && node.id?.type === 'Identifier') {
+    if (
+      node.type === 'TSTypeAliasDeclaration' &&
+      node.id?.type === 'Identifier'
+    ) {
       const anno = node.typeAnnotation
       const range = anno.range
       const isLiteral = anno?.type === 'TSTypeLiteral'
@@ -74,13 +80,15 @@ export function extractGenericFromFile(filename: string, code: string) {
 
     // callee must be defineEasyWSEvent
     const callee = decl.callee
-    const name
-      = callee.type === 'Identifier'
+    const name =
+      callee.type === 'Identifier'
         ? callee.name
-        : callee.type === 'MemberExpression' && callee.property.type === 'Identifier'
+        : callee.type === 'MemberExpression' &&
+            callee.property.type === 'Identifier'
           ? callee.property.name
           : null
-    if (name !== 'defineEasyWSEvent' && name !== 'defineEasyWSConnection') continue
+    if (name !== 'defineEasyWSEvent' && name !== 'defineEasyWSConnection')
+      continue
 
     // TS generic args:
     const tp = decl.typeArguments
@@ -126,5 +134,5 @@ export function extractGenericFromFile(filename: string, code: string) {
     if (first.range) return slice(first.range)
     return 'undefined'
   }
-  return 'undefined'
+  return null
 }

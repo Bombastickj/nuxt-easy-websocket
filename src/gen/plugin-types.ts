@@ -1,4 +1,5 @@
 import { addTypeTemplate } from '@nuxt/kit'
+import { MODULE_TMP_PATH } from '../constants'
 import type { NuxtEasyWebSocketContext } from '../types'
 
 export function generatePluginTypes({ resolver }: NuxtEasyWebSocketContext) {
@@ -51,7 +52,7 @@ export {}
 `
   // Add the generated types to the Nuxt build
   addTypeTemplate({
-    filename: 'types/nuxt-easy-websocket-plugin.d.ts',
+    filename: MODULE_TMP_PATH.plugin,
     getContents: () => generatedTemplate,
     write: true,
   })

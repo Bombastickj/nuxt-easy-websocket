@@ -57,6 +57,7 @@
     "changelogen": "^0.6.1",
     "eslint": "^9.15.0",
     "nuxt": "^4.0.3",
+    "prettier": "^3.6.2",
     "typescript": "latest",
     "vitest": "^3.0.4",
     "vue-tsc": "^3.0.1"

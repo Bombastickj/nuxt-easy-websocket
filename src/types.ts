@@ -134,14 +134,57 @@ export type NuxtEasyWebSocketLayerMeta = {
  * Contains all necessary utilities, options, and route collections
  */
 export interface NuxtEasyWebSocketContext {
+  /**
+   * Resolver anchored to the module.
+   */
   resolver: Resolver
+
+  /**
+   * Module-scoped logger.
+   */
   logger: ReturnType<(typeof import('@nuxt/kit'))['useLogger']>
+
+  /**
+   * Raw user-provided options as received in `defineNuxtModule`.
+   */
   userOptions: NuxtEasyWebSocketModuleOptions
+
+  /**
+   * Fully-resolved options with defaults applied.
+   */
   options: Required<NuxtEasyWebSocketModuleOptions>
 
+  /**
+   * Layer metadata used to classify changed files (build and dev).
+   * Order reflects the processing order of layers.
+   */
   layers: NuxtEasyWebSocketLayerMeta[]
+
+  /**
+   * Client route collections, keyed by namespace:
+   * - `'default'` for the primary client socket directory
+   * - external namespaces for entries in `externalSockets`
+   *
+   * @remarks
+   * Each value is a {@link RouteMap} keyed by absolute, no-ext file path.
+   * `Map` insertion order is used when generating client code.
+   */
   clientRoutes: Map<'default' | (string & {}), RouteMap>
+
+  /**
+   * Server route collection for files under `<serverDir>/api/**`.
+   *
+   * @remarks
+   * Keyed by absolute, no-ext file path. Used by server code generation.
+   */
   serverRoutes: RouteMap
+
+  /**
+   * Server connection-level handlers (top-level `<serverDir>/(open|close|error).(ts|js)`).
+   *
+   * @remarks
+   * Keyed by absolute, no-ext file path. Used by server connection generation.
+   */
   serverConnection: RouteMap
 }
 

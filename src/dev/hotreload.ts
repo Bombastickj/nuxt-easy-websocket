@@ -1,6 +1,10 @@
 import pathe from 'pathe'
 import { updateTemplates } from '@nuxt/kit'
-import { MODULE_TMP_PATH, SERVER_CONN_BASENAME_RE } from '../constants'
+import {
+  MODULE_TMP_PATH,
+  SCRIPT_EXT_RE,
+  SERVER_CONN_BASENAME_RE,
+} from '../constants'
 import { buildRoute, stripExt } from '../utils/fileScanner'
 
 import type { Nuxt } from 'nuxt/schema'
@@ -77,7 +81,7 @@ export function setupHMR(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
       event: 'unlink' | 'add' | 'change',
       pathAbs: string,
     ) => {
-      if (!/\.(ts|js)$/i.test(pathAbs)) return
+      if (!SCRIPT_EXT_RE.test(pathAbs)) return
 
       const classified = classify(ctx, pathAbs)
       if (classified.kind === 'unknown') return

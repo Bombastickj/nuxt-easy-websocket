@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v4.0.0-alpha.3
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.2...v4.0.0-alpha.3)
+
+### 🚀 Enhancements
+
+- **HMR:** Added precise hmr during dev ([de99869](https://github.com/Bombastickj/nuxt-easy-websocket/commit/de99869))
+
+### 🩹 Fixes
+
+- Regex ([e32618e](https://github.com/Bombastickj/nuxt-easy-websocket/commit/e32618e))
+- **regex:** Replaced with centralized regex data ([18a628f](https://github.com/Bombastickj/nuxt-easy-websocket/commit/18a628f))
+
+### 💅 Refactors
+
+- **regex:** Centralized regex ([782b862](https://github.com/Bombastickj/nuxt-easy-websocket/commit/782b862))
+
+### 🏡 Chore
+
+- Added prettier for consistency ([4ce2a74](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4ce2a74))
+- Added missing ts doc ([349c3d8](https://github.com/Bombastickj/nuxt-easy-websocket/commit/349c3d8))
+- Bump alpha version and minor deps ([fb3284f](https://github.com/Bombastickj/nuxt-easy-websocket/commit/fb3284f))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha.2
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.1...v4.0.0-alpha.2)

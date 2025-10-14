@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.0.0-alpha.4
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.3...v4.0.0-alpha.4)
+
+### 🩹 Fixes
+
+- **layers:** Correctly manage layers & merge only missing entries ([4cda34c](https://github.com/Bombastickj/nuxt-easy-websocket/commit/4cda34c))
+
+### 🏡 Chore
+
+- Bump alpha release version ([ca4dbe4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/ca4dbe4))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha.3
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.2...v4.0.0-alpha.3)

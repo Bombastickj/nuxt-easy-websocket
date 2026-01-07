@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.0.0-alpha.5
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.4...v4.0.0-alpha.5)
+
+### 🚀 Enhancements
+
+- **EasyWSClientState:** Added `isFirstConnectionAttempt` boolean ([76e841a](https://github.com/Bombastickj/nuxt-easy-websocket/commit/76e841a))
+
+### 🏡 Chore
+
+- Bump alpha release version ([693254d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/693254d))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha.4
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.3...v4.0.0-alpha.4)

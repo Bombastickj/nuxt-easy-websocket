@@ -32,6 +32,7 @@ export function createWS(
   const state = ref<EasyWSClientState>({
     reconnectCountdown: null,
     lastError: null,
+    isFirstConnectionAttempt: true,
     connectionAttempts: 0,
     readyState: config.autoConnect ? WS_STATES.CONNECTING : WS_STATES.CLOSED,
   })
@@ -161,6 +162,7 @@ export function createWS(
 
     // Reset connection state
     state.value.reconnectCountdown = null
+    state.value.isFirstConnectionAttempt = false
     state.value.connectionAttempts = 0
     state.value.lastError = null
 

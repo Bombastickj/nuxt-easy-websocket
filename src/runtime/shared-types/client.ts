@@ -8,6 +8,7 @@ export type EasyWSClientArgs<TYPE, KEY extends keyof TYPE>
 export interface EasyWSClientState {
   reconnectCountdown: number | null
   lastError: string | null
+  isFirstConnectionAttempt: boolean
   connectionAttempts: number
   readyState: number
 }

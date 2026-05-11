@@ -10,14 +10,36 @@ function extToLang(filename: string): ParserOptions['lang'] {
   return 'js'
 }
 
+function normalizeType(text: string) {
+  const lines = text.split(/\r?\n/)
+  if (lines.length <= 1) return text.trim()
+
+  // Find minimum indentation of non-empty lines
+  const minIndent = lines
+    .filter(line => line.trim().length > 0)
+    .reduce((min, line) => {
+      const match = line.match(/^(\s*)/)
+      return match ? Math.min(min, match[1]?.length ?? min) : min
+    }, Infinity)
+
+  return lines
+    .map(line => line.slice(minIndent === Infinity ? 0 : minIndent))
+    .join('\n      ') // Body of multi-line should be indented further
+    .trim()
+}
+
 function ensureBraced(text: string) {
   let t = text.trim()
 
   // remove one leading { … and one trailing … }
-  t = t.replace(/^\{\s*/, '')
-  t = t.replace(/\s*\}$/, '')
+  if (t.startsWith('{')) t = t.slice(1)
+  if (t.endsWith('}')) t = t.slice(0, -1)
 
-  return `{ ${t} }`
+  const normalized = normalizeType(t)
+  if (normalized.includes('\n')) {
+    return `{\n      ${normalized}\n    }`
+  }
+  return `{ ${normalized} }`
 }
 
 /* --------------------------- oxc-parser extraction ------------------------- */
@@ -49,7 +71,11 @@ export function extractGenericFromFile(filename: string, code: string) {
   const locals = new Map<string, LocalMeta>()
 
   // Index local declarations
-  for (const node of program.body) {
+  for (let node of program.body) {
+    if (node.type === 'ExportNamedDeclaration' && node.declaration) {
+      node = node.declaration
+    }
+
     if (
       node.type === 'TSInterfaceDeclaration' &&
       node.id?.type === 'Identifier'
@@ -71,24 +97,12 @@ export function extractGenericFromFile(filename: string, code: string) {
     }
   }
 
-  // Find: export default defineEasyWSEvent<...>(...)
+  // Find: export default someFunction<...>(...)
   for (const stmt of program.body) {
     if (stmt.type !== 'ExportDefaultDeclaration') continue
 
     const decl = stmt.declaration
     if (!decl || decl.type !== 'CallExpression') continue
-
-    // callee must be defineEasyWSEvent
-    const callee = decl.callee
-    const name =
-      callee.type === 'Identifier'
-        ? callee.name
-        : callee.type === 'MemberExpression' &&
-            callee.property.type === 'Identifier'
-          ? callee.property.name
-          : null
-    if (name !== 'defineEasyWSEvent' && name !== 'defineEasyWSConnection')
-      continue
 
     // TS generic args:
     const tp = decl.typeArguments
@@ -115,7 +129,7 @@ export function extractGenericFromFile(filename: string, code: string) {
       // External/builtin or auto-imported type → keep full reference incl. generics
       const local = locals.get(ident)
       if (!local) {
-        return first.range ? slice(first.range) : ident
+        return first.range ? normalizeType(slice(first.range)) : ident
       }
 
       if (local.kind === 'interface') {
@@ -126,12 +140,12 @@ export function extractGenericFromFile(filename: string, code: string) {
       if (local.kind === 'alias') {
         const text = slice(local.range)
         // If alias RHS is a literal, ensure braces; otherwise return as-is
-        return local.isLiteral ? ensureBraced(text) : text
+        return local.isLiteral ? ensureBraced(text) : normalizeType(text)
       }
     }
 
     // Fallback: return raw source for the type node, if we have a range
-    if (first.range) return slice(first.range)
+    if (first.range) return normalizeType(slice(first.range))
     return 'undefined'
   }
   return null

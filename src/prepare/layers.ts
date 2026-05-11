@@ -27,11 +27,11 @@ export async function prepareLayers(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
 
     const clientSrcDir = resolver.resolve(
       layer.app,
-      layerCfg.easyWebSocket?.clientSrcDir || options.clientSrcDir,
+      (layerCfg.easyWebSocket ? layerCfg.easyWebSocket.clientSrcDir : undefined) || options.clientSrcDir,
     )
     const serverSrcDir = resolver.resolve(
       layer.server || nuxt.options.serverDir,
-      layerCfg.easyWebSocket?.serverSrcDir || options.serverSrcDir,
+      (layerCfg.easyWebSocket ? layerCfg.easyWebSocket.serverSrcDir : undefined) || options.serverSrcDir,
     )
     const serverApiSrcDir = pathe.join(serverSrcDir, '/api')
 

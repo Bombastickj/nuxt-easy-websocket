@@ -1,4 +1,6 @@
-import { defineNitroPlugin, EasyWSConnections, useRuntimeConfig } from '#imports'
+import { defineNitroPlugin } from 'nitropack/runtime'
+import { useRuntimeConfig } from '#imports'
+import { EasyWSConnections } from '../utils/EasyWSConnections'
 
 export default defineNitroPlugin(() => {
   const options = useRuntimeConfig().public.easyWebSocket.ws

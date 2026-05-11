@@ -1,9 +1,11 @@
 import type { Peer, Message, WSError } from 'crossws'
-import { EasyWSPeer } from '../utils/EasyWSPeer'
-/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- vue-tsc/editor disagree here */
-// @ts-ignore — see note above
-import { defineWebSocketHandler, EasyWSConnections, useRuntimeConfig } from '#imports'
+import { defineWebSocketHandler } from 'h3'
+
+import { useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
+
+import { EasyWSPeer } from '../utils/EasyWSPeer'
+import { EasyWSConnections } from '../utils/EasyWSConnections'
 
 export default defineWebSocketHandler({
   async open(peer: Peer) {

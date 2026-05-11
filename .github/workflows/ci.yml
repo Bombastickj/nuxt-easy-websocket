@@ -42,7 +42,7 @@ jobs:
         run: npm install
 
       - name: Install Playwright
-        run: npm playwright-core install chromium
+        run: npx playwright-core install chromium
 
       - name: Playground prepare
         run: npm run dev:prepare

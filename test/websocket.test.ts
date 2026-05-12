@@ -25,7 +25,9 @@ describe('websocket communication', async () => {
 
     const messagePromise = new Promise<WSMessage>((resolve) => {
       ws.onmessage = (event) => {
-        resolve(JSON.parse(event.data.toString()))
+        const data = event.data.toString()
+        if (data === '_heartbeat') return
+        resolve(JSON.parse(data))
       }
     })
 
@@ -47,7 +49,9 @@ describe('websocket communication', async () => {
 
     const messages: WSMessage[] = []
     ws.onmessage = (event) => {
-      messages.push(JSON.parse(event.data.toString()))
+      const data = event.data.toString()
+      if (data === '_heartbeat') return
+      messages.push(JSON.parse(data))
     }
 
     // Wait for connection
@@ -93,7 +97,9 @@ describe('websocket communication', async () => {
     const ws1 = new WebSocket(wsUrl)
     const messages1: WSMessage[] = []
     ws1.onmessage = (event) => {
-      messages1.push(JSON.parse(event.data.toString()))
+      const data = event.data.toString()
+      if (data === '_heartbeat') return
+      messages1.push(JSON.parse(data))
     }
     await new Promise(resolve => ws1.onopen = resolve)
 
@@ -174,7 +180,11 @@ describe('websocket communication', async () => {
     const wsUrl = url('/_ws').replace('http', 'ws')
     const ws = new WebSocket(wsUrl)
     const messages: WSMessage[] = []
-    ws.onmessage = (event) => messages.push(JSON.parse(event.data.toString()))
+    ws.onmessage = (event) => {
+      const data = event.data.toString()
+      if (data === '_heartbeat') return
+      messages.push(JSON.parse(data))
+    }
     await new Promise(resolve => ws.onopen = resolve)
 
     ws.send(JSON.stringify({
@@ -241,7 +251,9 @@ describe('websocket communication', async () => {
     // Can still ping
     const messagePromise = new Promise<WSMessage>((resolve) => {
       ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data.toString()) as WSMessage
+        const data = event.data.toString()
+        if (data === '_heartbeat') return
+        const msg = JSON.parse(data) as WSMessage
         if (msg.name === 'pong') resolve(msg)
       }
     })

@@ -17,7 +17,11 @@ describe('websocket custom directories', async () => {
     const wsUrl = url('/_ws').replace('http', 'ws')
     const ws = new WebSocket(wsUrl)
     const messages: WSMessage[] = []
-    ws.onmessage = (event) => messages.push(JSON.parse(event.data.toString()))
+    ws.onmessage = (event) => {
+      const data = event.data.toString()
+      if (data === '_heartbeat') return
+      messages.push(JSON.parse(data))
+    }
     await new Promise(resolve => ws.onopen = resolve)
 
     ws.send(JSON.stringify({

@@ -1,10 +1,18 @@
 import type { Serialize, Simplify } from 'nitropack/types'
-import type { EasyWSClientEventHandler, EasyWSClientEventHandlerRequest } from '../../shared-types'
+import type {
+  EasyWSBinaryPayload,
+  EasyWSClientEventHandler,
+  EasyWSClientEventHandlerRequest,
+} from '../../shared-types'
+
+type EasyWSRuntimePayload<T> = T extends EasyWSBinaryPayload
+  ? T
+  : Simplify<Serialize<T>>
 
 export function defineEasyWSEvent<
   Request extends EasyWSClientEventHandlerRequest,
 >(
-  handler: EasyWSClientEventHandler<Simplify<Serialize<Request>>>,
+  handler: EasyWSClientEventHandler<EasyWSRuntimePayload<Request>>,
 ): EasyWSClientEventHandler<Request> {
   return handler as EasyWSClientEventHandler<Request>
 }

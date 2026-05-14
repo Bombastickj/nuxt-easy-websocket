@@ -121,17 +121,17 @@ export function setupHMR(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
 
             ctx.clientRoutes.set(classified.ns, nsMap)
 
-            updateOnly('client')
+            await updateOnly('client')
           } else if (classified.kind === 'serverRoute') {
             if (!route) ctx.serverRoutes.delete(filePath)
             else ctx.serverRoutes.set(filePath, route)
 
-            updateOnly('serverRoute')
+            await updateOnly('serverRoute')
           } else if (classified.kind === 'serverConn') {
             if (!route) ctx.serverConnection.delete(filePath)
             else ctx.serverConnection.set(filePath, route)
 
-            updateOnly('serverConn')
+            await updateOnly('serverConn')
           }
         }
       } catch (err) {

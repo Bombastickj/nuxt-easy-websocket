@@ -1,7 +1,20 @@
-import type { EasyWSClientState } from '../../shared-types'
 import { computed, readonly, ref } from '#imports'
 import { onNuxtReady } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
+
+import type { EasyWSClientState, EasyWSRawPayload } from '../../shared-types'
+import { EASY_WS_RAW_BINARY_EVENT, EASY_WS_RAW_TEXT_EVENT } from '../../shared/events'
+import {
+  createMessageEnvelope,
+  tryParseMessageEnvelope,
+} from '../../shared/message-envelope'
+import {
+  createEasyWSBinaryFrame,
+  isEasyWSBinaryPayload,
+  toWebSocketBody,
+  toUint8ArraySync,
+  tryParseEasyWSBinaryFrame,
+} from '../../shared/binary-frame'
 
 /**
  * WebSocket connection states as defined in the WebSocket API
@@ -90,6 +103,19 @@ export function createWS(
     socket = null
   }
 
+  async function dispatchClientEvent(name: string, data: unknown) {
+    const eventModule = clientRoutes[socketName]?.find(e => e.name === name)
+
+    if (!eventModule) {
+      const error = `Event not found: ${name}`
+      console.warn('[ClientSocket]:', error)
+      state.value.lastError = error
+      return
+    }
+
+    await eventModule.handler({ data })
+  }
+
   /**
    * Updates the WebSocket ready state and triggers relevant state updates
    */
@@ -145,6 +171,7 @@ export function createWS(
     // console.log(`[ClientSocket]: Attempting to connect to ${resolvedURL}`)
     const resolvedURL = typeof wsURL === 'string' ? wsURL : wsURL()
     socket = new WebSocket(resolvedURL)
+    socket.binaryType = 'arraybuffer'
     updateReadyState(socket.readyState)
 
     socket.addEventListener('open', handleOpen)
@@ -198,50 +225,72 @@ export function createWS(
     socket?.close()
   }
 
+  async function handleBinaryMessage(data: ArrayBuffer | ArrayBufferView) {
+    const frame = tryParseEasyWSBinaryFrame(data)
+
+    if (frame) {
+      await dispatchClientEvent(frame.name, frame.data)
+      return
+    }
+
+    // raw binary message
+    await dispatchClientEvent(
+      EASY_WS_RAW_BINARY_EVENT,
+      toUint8ArraySync(data),
+    )
+  }
+
   /**
    * Handles incoming WebSocket messages
    */
   async function handleMessage(message: MessageEvent) {
     try {
       // _heartbeat functionality
-      if (config.heartbeat.active) {
-        if (message.data === '_heartbeat') {
-          socket?.send('_heartbeat')
+      if (config.heartbeat.active && message.data === '_heartbeat') {
+        socket?.send('_heartbeat')
+        return
+      }
+
+      if (message.data instanceof ArrayBuffer || ArrayBuffer.isView(message.data)) {
+        await handleBinaryMessage(message.data)
+        return
+      }
+
+      if (message.data instanceof Blob) {
+        await handleBinaryMessage(await message.data.arrayBuffer())
+        return
+      }
+
+      if (typeof message.data === 'string') {
+        const envelope = tryParseMessageEnvelope(message.data)
+
+        if (envelope) {
+          await dispatchClientEvent(envelope.name, envelope.data)
           return
         }
+
+        await dispatchClientEvent(EASY_WS_RAW_TEXT_EVENT, message.data)
+        return
       }
 
-      // console.log('[ClientSocket]: Message received:', message.data)
-      const { name, data }: { name: string, data: unknown } = JSON.parse(message.data)
-      const eventModule = clientRoutes[socketName]?.find(e => e.name === name)
+      throw new Error(
+        `Unsupported WebSocket message payload: ${Object.prototype.toString.call(message.data)}`,
+      )
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message
+        : 'Unknown error processing message'
 
-      if (eventModule) {
-        // Execute the handler associated with the event
-        await eventModule.handler({ data })
-      }
-      else {
-        const error = `Event not found: ${name}`
-        console.warn('[ClientSocket]:', error)
-        state.value.lastError = error
-      }
-    }
-    catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error processing message'
       console.error('[ClientSocket]: Error processing message:', errorMessage)
       state.value.lastError = errorMessage
     }
   }
 
-  /**
-   * Sends a typed message through the WebSocket
-   * Will wait for connection if socket is currently connecting
-   */
-  async function send(name: string, data?: unknown) {
-    // console.info('[ClientSocket]: Send:', name, ', Data:', data)
+  async function sendWhenOpen(callback: () => Promise<void> | void) {
     if (import.meta.server) return
 
     if (state.value.readyState === WS_STATES.OPEN) {
-      socket?.send(JSON.stringify({ name, data }))
+      await callback()
       return
     }
 
@@ -252,8 +301,28 @@ export function createWS(
 
     // we wait until a socket connection has been made
     await socketOpenPromise
+    await callback()
+  }
 
-    socket?.send(JSON.stringify({ name, data }))
+  /**
+   * Sends a typed message through the WebSocket
+   * Will wait for connection if socket is currently connecting
+   */
+  async function send(name: string, data?: unknown) {
+    await sendWhenOpen(async () => {
+      if (isEasyWSBinaryPayload(data)) {
+        socket?.send(await createEasyWSBinaryFrame(name, data))
+        return
+      }
+
+      socket?.send(JSON.stringify(createMessageEnvelope(name, data)))
+    })
+  }
+
+  async function sendRaw(data: EasyWSRawPayload) {
+    await sendWhenOpen(async () => {
+      socket?.send(await toWebSocketBody(data))
+    })
   }
 
   /**
@@ -302,6 +371,7 @@ export function createWS(
   // Expose public API
   return {
     send,
+    sendRaw,
     state: readonly(state),
     connectionStatus,
     maxReconnectAttemptsReached,

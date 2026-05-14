@@ -18,6 +18,8 @@ A powerful Nuxt module providing seamless WebSocket integration with type-safe c
 - 🧩 **File-based routing** for WebSocket events
 - 🔌 **Connection lifecycle hooks** (open, close)
 - 🛠️ **Simple API** for sending and receiving messages
+- 📦 **Binary event support** with named, file-routed binary messages
+- 🧵 **Raw WebSocket passthrough** for third-party protocols and unframed binary messages
 - 📝 **TypeScript support** with full type inference
 
 ## Installation
@@ -88,33 +90,42 @@ The module uses a file-based routing system similar to Nitro Routes:
 
 ```
 📁 project/
+├── 📁 app/
+│   ├── 📁 socket/                  # Client-side WebSocket handlers
+│   │   ├── 📄 _binary.ts           # Handle unframed binary messages from the default socket
+│   │   ├── 📄 _text.ts             # Handle raw text messages from the default socket
+│   │   ├── 📄 chat.ts              # Handle 'chat' events from server
+│   │   └── 📄 notification.ts      # Handle 'notification' events from server
+│   │
+│   └── 📁 example-socket/          # External WebSocket handlers (folder name must match the socket name)
+│       ├── 📄 _binary.ts           # Handle unframed binary messages from this external socket
+│       ├── 📄 _text.ts             # Handle raw text messages from this external socket
+│       └── 📄 pong.ts              # Handle 'pong' event from external socket
+│
 ├── 📁 server/
 │   ├── 📁 socket/                  # Server-side WebSocket handlers
 │   │   ├── 📄 open.ts              # Connection opened event
 │   │   ├── 📄 close.ts             # Connection closed event
 │   │   └── 📁 api/                 # API endpoints for client-to-server communication
+│   │       ├── 📄 _binary.ts       # Handle unframed binary messages from client
+│   │       ├── 📄 _text.ts         # Handle raw text messages from client
 │   │       ├── 📄 message.ts       # Handle 'message' events from client
 │   │       └── 📁 user/            # API endpoints for client-to-server communication
 │   │           └── 📄 login.ts     # Handle 'user/login' events from client
 │   │
-├── 📁 socket/                      # Client-side WebSocket handlers
-│   ├── 📄 chat.ts                  # Handle 'chat' events from server
-│   └── 📄 notification.ts          # Handle 'notification' events from server
-│
-├── 📁 example-socket/              # External WebSocket handlers (folder name must match the socket name)
-│   └── 📄 pong.ts                 # Handle 'pong' event from external socket
+└── 📄 nuxt.config.ts
 ```
 
-> **Important**: For external WebSockets, the directory name must match the socket name defined in the configuration. For example, if you configured an external socket named `example-socket`, its event handlers should be placed in a directory named `example-socket/`.
+> **Important**: For external WebSockets, the directory name must match the socket name defined in the configuration. For example, if you configured an external socket named `example-socket`, its event handlers should be placed in `app/example-socket/`.
 
 ### Client-Side
 
 #### Defining Client-Side Event Handlers
 
-Create a file in your `socket` directory (or the configured `clientSrcDir`):
+Create a file in your `app/socket` directory (or the configured `clientSrcDir`):
 
 ```ts
-// socket/chat.ts
+// app/socket/chat.ts
 export default defineEasyWSEvent<{
   message: string
   user: string
@@ -231,15 +242,47 @@ export default defineEventHandler(async (event) => {
 
 ### Using External WebSockets
 
-If you've configured external WebSocket connections, you can handle events from them:
+If you've configured external WebSocket connections, you can handle EasyWebSocket-style events from them:
+
+**File: `app/example-socket/pong.ts`**
 
 ```ts
-// example-socket/pong.ts (folder name must match the socket name)
 export default defineEasyWSEvent<{
   timestamp: number
 }>(({ data }) => {
   const diffInMs = Date.now() - data.timestamp
   console.log(`Pong took: ${diffInMs}ms`)
+})
+```
+
+For third-party WebSockets that do not use the EasyWebSocket message envelope or binary frame format, use `sendRaw()` to send exact text or binary data.
+
+**File: `app/components/ExternalSocketExample.vue`**
+
+```vue
+<script setup lang="ts">
+const externalWs = useExternalWS('example-socket')
+
+await externalWs.sendRaw(new Uint8Array([1, 2, 3]))
+await externalWs.sendRaw('SUBSCRIBE ticker:BTC')
+</script>
+```
+
+Raw text messages and unframed binary messages received from an external socket are routed to reserved handlers inside the matching external socket directory: `_text` receives `string` payloads, and `_binary` receives `Uint8Array` payloads.
+
+**File: `app/example-socket/_text.ts`**
+
+```ts
+export default defineEasyWSEvent<string>(({ data }) => {
+  console.log('Received raw external text packet:', data)
+})
+```
+
+**File: `app/example-socket/_binary.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data }) => {
+  console.log('Received raw external binary packet:', data)
 })
 ```
 
@@ -265,6 +308,138 @@ This provides type safety when using `useExternalWS` composable:
 const externalWs = useExternalWS('example-socket')
 externalWs.send('ping', { timestamp: Date.now() }) // Fully typed!
 ```
+
+### Binary Messages and Raw WebSocket Data
+
+`nuxt-easy-websocket` supports routed EasyWebSocket messages and raw WebSocket passthrough:
+
+| API | Use case | Routing behavior |
+| --- | --- | --- |
+| `send(name, data)` with JSON-compatible data | EasyWebSocket text events | Sends the standard JSON envelope `{ name, data }` and routes by event name. |
+| `send(name, data)` with binary data | EasyWebSocket binary events | Adds the EasyWebSocket binary frame and routes by event name. |
+| `sendRaw(data)` | Third-party protocols or byte-exact messages | Sends the data exactly as provided. No event name, JSON envelope, or magic header is added. Incoming raw text is routed to `_text`; incoming unframed binary is routed to `_binary`. |
+
+EasyWebSocket-routed binary messages use the same file-based event names as JSON messages. The binary frame stores the encoded event-name length as a 32-bit unsigned integer, so deeply nested routes and long custom delimiters are supported.
+
+Use `send()` when both sides use `nuxt-easy-websocket`. Use `sendRaw()` when the other side expects a custom protocol, such as a third-party WebSocket server, or when you intentionally want to send a raw text or binary WebSocket message.
+
+#### Sending Routed Binary Events
+
+When `send()` receives an `ArrayBuffer`, `ArrayBufferView` such as `Uint8Array`, or `Blob`, the payload is wrapped in an EasyWebSocket binary frame. This keeps binary messages compatible with named events and file-based routing.
+
+**File: `app/components/BinaryUpload.vue`**
+
+```vue
+<script setup lang="ts">
+const ws = useEasyWS()
+
+const bytes = new Uint8Array([1, 2, 3])
+await ws.send('api/process-binary', bytes)
+</script>
+```
+
+**File: `server/socket/api/process-binary.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data, peer }) => {
+  // Binary EasyWebSocket payloads are delivered as Uint8Array.
+  console.log('Received routed binary event:', data)
+
+  peer.send('binary-response', new Uint8Array([4, 5, 6]))
+})
+```
+
+**File: `app/socket/binary-response.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data }) => {
+  console.log('Received routed binary response:', data)
+})
+```
+
+#### Sending Raw WebSocket Data
+
+Use `sendRaw()` when you do not want the EasyWebSocket frame or JSON envelope. This is useful for external sockets, custom text protocols, and custom binary protocols.
+
+**File: `app/components/RawSocketMessage.vue`**
+
+```vue
+<script setup lang="ts">
+const ws = useEasyWS()
+
+await ws.sendRaw(new Uint8Array([1, 2, 3]))
+await ws.sendRaw('raw text message')
+</script>
+```
+
+On the server, `EasyWSPeer` also exposes raw send helpers.
+
+**File: `server/socket/api/send-raw.ts`**
+
+```ts
+export default defineEasyWSEvent<undefined>(async ({ peer }) => {
+  await peer.sendRaw(new Uint8Array([4, 5, 6]))
+  await peer.sendRaw('raw text message')
+})
+```
+
+#### Receiving Raw Text and Unframed Binary Data
+
+Incoming raw text messages are routed to a reserved `_text` event. Incoming binary messages that do not contain the EasyWebSocket magic header are routed to a reserved `_binary` event.
+
+**File: `server/socket/api/_text.ts`**
+
+```ts
+export default defineEasyWSEvent<string>(({ data, peer }) => {
+  console.log('Received raw text from client:', data)
+
+  peer.sendRaw(`echo: ${data}`)
+})
+```
+
+**File: `server/socket/api/_binary.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data, peer }) => {
+  console.log('Received raw binary from client:', data)
+})
+```
+
+**File: `app/socket/_text.ts`**
+
+```ts
+export default defineEasyWSEvent<string>(({ data }) => {
+  console.log('Received raw text from server:', data)
+})
+```
+
+**File: `app/socket/_binary.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data }) => {
+  console.log('Received raw binary from server:', data)
+})
+```
+
+For external WebSockets, place the `_text` and `_binary` handlers in the external socket directory.
+
+**File: `app/example-socket/_text.ts`**
+
+```ts
+export default defineEasyWSEvent<string>(({ data }) => {
+  console.log('Received raw text from example-socket:', data)
+})
+```
+
+**File: `app/example-socket/_binary.ts`**
+
+```ts
+export default defineEasyWSEvent<Uint8Array>(({ data }) => {
+  console.log('Received raw binary from example-socket:', data)
+})
+```
+
+> **How it works**: EasyWebSocket binary messages use a lightweight frame: `[0xE7][0x57][4 bytes: NameLength][Name][RawData]`. The `NameLength` field is an unsigned 32-bit integer encoded in network byte order, so binary event names support deeply nested routes and long custom delimiters. If incoming binary data does not start with the EasyWebSocket magic bytes, it is treated as unframed binary and routed to `_binary`. Raw text messages that are not valid EasyWebSocket JSON envelopes are routed to `_text`. Text-based EasyWebSocket messages continue to use the standard JSON envelope: `{ name, data }`. Raw text/binary classification depends on the original raw message value exposed by the WebSocket runtime through CrossWS; conversion helpers such as `message.text()` or `message.uint8Array()` should not be used to decide the original frame type.
 
 ## TypeScript Support
 

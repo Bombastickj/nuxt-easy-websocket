@@ -30,5 +30,15 @@ describe('browser E2E tests', async () => {
     await page.click('#ext-btn')
     await page.waitForSelector('#external:has-text("external:external-test")', { timeout: 5000 })
     expect(await page.textContent('#external')).toBe('external:external-test')
+
+    // Test raw text
+    await page.click('#raw-text-btn')
+    await page.waitForSelector('#raw-text:has-text("echo:hello")', { timeout: 5000 })
+    expect(await page.textContent('#raw-text')).toBe('echo:hello')
+
+    // Test raw binary
+    await page.click('#raw-binary-btn')
+    await page.waitForSelector('#raw-binary:has-text("100,101,102")', { timeout: 5000 })
+    expect(await page.textContent('#raw-binary')).toBe('100,101,102')
   }, 30000)
 })

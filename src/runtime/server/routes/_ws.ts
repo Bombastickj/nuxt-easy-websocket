@@ -4,8 +4,33 @@ import { defineWebSocketHandler } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import { serverConnection, serverRoutes } from '#nuxt-easy-websocket/server'
 
+import { EASY_WS_RAW_BINARY_EVENT, EASY_WS_RAW_TEXT_EVENT } from '../../shared/events'
+import { tryParseMessageEnvelope } from '../../shared/message-envelope'
+import { isEasyWSBinaryFrame, parseEasyWSBinaryFrame } from '../../shared/binary-frame'
 import { EasyWSPeer } from '../utils/EasyWSPeer'
 import { EasyWSConnections } from '../utils/EasyWSConnections'
+
+async function dispatchServerEvent(
+  peer: Peer,
+  name: string,
+  data: unknown,
+) {
+  const eventModule = serverRoutes.find(e => e.name === name)
+
+  if (!eventModule) {
+    console.log('[ServerSocket]:', `Event not found: ${name}`)
+    return
+  }
+
+  const ewsPeer = EasyWSConnections.get(peer.id)
+
+  if (!ewsPeer) {
+    console.log('[ServerSocket]:', 'Peer not found')
+    return
+  }
+
+  await eventModule.handler({ data, peer: ewsPeer })
+}
 
 export default defineWebSocketHandler({
   async open(peer: Peer) {
@@ -22,35 +47,49 @@ export default defineWebSocketHandler({
       await con.handler({ peer: ewsPeer })
     }
   },
+
   async message(peer: Peer, message: Message) {
-    // console.log('[ServerSocket]:', message.json())
+    try {
+      // _heartbeat functionality active
+      const heartbeatActive = useRuntimeConfig().public.easyWebSocket.ws.heartbeat.active
+      const raw = message.rawData
 
-    // _heartbeat functionality
-    const runtimeConfig = useRuntimeConfig()
-    const heartbeatActive = runtimeConfig.public.easyWebSocket.ws.heartbeat
-    if (heartbeatActive && message.text() === '_heartbeat') {
-      peer.isAlive = true
-      return
-    }
+      if (typeof raw === 'string') {
+        // definitely a text frame
+        if (heartbeatActive && raw === '_heartbeat') {
+          peer.isAlive = true
+          return
+        }
 
-    const { name, data } = message.json() as { name: string, data: never }
+        const envelope = tryParseMessageEnvelope(raw)
 
-    const eventModule = serverRoutes.find(e => e.name === name)
-    if (eventModule) {
-      const ewsPeer = EasyWSConnections.get(peer.id)
+        if (envelope) {
+          await dispatchServerEvent(peer, envelope.name, envelope.data)
+          return
+        }
 
-      if (ewsPeer) {
-        // Execute the handler associated with the event
-        await eventModule.handler({ data, peer: ewsPeer })
+        await dispatchServerEvent(peer, EASY_WS_RAW_TEXT_EVENT, raw)
+        return
       }
-      else {
-        console.log('[ServerSocket]:', 'Peer not found')
+
+      // From here, treat as binary-like.
+      const bytes = message.uint8Array()
+
+      if (isEasyWSBinaryFrame(bytes)) {
+        const frame = parseEasyWSBinaryFrame(bytes)
+        await dispatchServerEvent(peer, frame.name, frame.data)
+        return
       }
-    }
-    else {
-      console.log('[ServerSocket]:', 'Event not found')
+
+      await dispatchServerEvent(peer, EASY_WS_RAW_BINARY_EVENT, bytes)
+    } catch (error) {
+      console.error(
+        '[ServerSocket]: Error processing message:',
+        error instanceof Error ? error.message : error,
+      )
     }
   },
+
   async close(peer: Peer) {
     // console.log('[ServerSocket]: Disconnect: ' + peer)
     const closeCon = serverConnection.filter(con => con.type === 'close')
@@ -64,6 +103,7 @@ export default defineWebSocketHandler({
       }
     }
   },
+
   async error(peer: Peer, _error: WSError) {
     const errorCon = serverConnection.filter(con => con.type === 'error')
 

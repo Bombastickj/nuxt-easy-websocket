@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v4.1.0
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.5...v4.1.0)
+
+### 🚀 Enhancements
+
+- Add binary event support and raw WebSocket passthrough ([03baa6d](https://github.com/Bombastickj/nuxt-easy-websocket/commit/03baa6d))
+
+### 🏡 Chore
+
+- Update CI for proper linting/testing ([fb56b72](https://github.com/Bombastickj/nuxt-easy-websocket/commit/fb56b72))
+- Update CI for playwright-core installation ([69a5a88](https://github.com/Bombastickj/nuxt-easy-websocket/commit/69a5a88))
+
+### ✅ Tests
+
+- Add comprehensive E2E/unit tests and upgrade core dependencies ([72c3734](https://github.com/Bombastickj/nuxt-easy-websocket/commit/72c3734))
+- Fix JSON parsing errors in tests by skipping heartbeat messages ([9e6e8f8](https://github.com/Bombastickj/nuxt-easy-websocket/commit/9e6e8f8))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.0.0-alpha.5
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.4...v4.0.0-alpha.5)

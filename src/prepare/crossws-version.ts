@@ -1,8 +1,5 @@
-
-import pathe from 'pathe'
-
 import { access, readFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
+import pathe from 'pathe'
 
 import type { Nuxt } from 'nuxt/schema'
 import type { NuxtEasyWebSocketContext } from '../types'
@@ -40,16 +37,12 @@ async function readPackageVersion(packageJsonPath: string) {
   return pkg?.version
 }
 
-function createRequireFromDir(dir: string) {
-  return createRequire(pathe.join(dir, 'package.json'))
-}
-
 function resolvePackageJsonFrom(
   packageName: string,
   fromDir: string,
 ): string | null {
   try {
-    return createRequireFromDir(fromDir).resolve(`${packageName}/package.json`)
+    return pathe.resolve(fromDir, `${packageName}/package.json`)
   } catch {
     return null
   }
@@ -60,7 +53,7 @@ function resolvePackageJsonFromPackage(
   ownerPackageJsonPath: string,
 ): string | null {
   try {
-    return createRequire(ownerPackageJsonPath).resolve(`${packageName}/package.json`)
+    return pathe.resolve(ownerPackageJsonPath, `${packageName}/package.json`)
   } catch {
     return null
   }
@@ -178,7 +171,7 @@ function getOverrideSnippet(packageManager: PackageManager) {
       return `{
   "pnpm": {
     "overrides": {
-      "crossws": "${MIN_CROSSWS_VERSION}"
+      "crossws": "^${MIN_CROSSWS_VERSION}"
     }
   }
 }`
@@ -186,7 +179,7 @@ function getOverrideSnippet(packageManager: PackageManager) {
     case 'yarn':
       return `{
   "resolutions": {
-    "crossws": "${MIN_CROSSWS_VERSION}"
+    "crossws": "^${MIN_CROSSWS_VERSION}"
   }
 }`
 
@@ -196,7 +189,7 @@ function getOverrideSnippet(packageManager: PackageManager) {
     default:
       return `{
   "overrides": {
-    "crossws": "${MIN_CROSSWS_VERSION}"
+    "crossws": "^${MIN_CROSSWS_VERSION}"
   }
 }`
   }

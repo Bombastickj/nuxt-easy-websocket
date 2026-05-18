@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v4.1.2
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.1.1...v4.1.2)
+
+### 🩹 Fixes
+
+- Detect crossws version correctly ([bd47f7b](https://github.com/Bombastickj/nuxt-easy-websocket/commit/bd47f7b))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.1.1
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.1.0...v4.1.1)

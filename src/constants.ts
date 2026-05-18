@@ -1,4 +1,5 @@
 export const NUXT_EASY_WEBSOCKET_MODULE_ID = 'nuxt-easy-websocket'
+export const MIN_CROSSWS_VERSION = '^0.4.5'
 
 export const MODULE_TMP_PATH = {
   plugin: 'types/nuxt-easy-websocket-plugin.d.ts',

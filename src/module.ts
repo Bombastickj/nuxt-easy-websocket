@@ -1,6 +1,7 @@
 import { defineNuxtModule } from '@nuxt/kit'
 import { NUXT_EASY_WEBSOCKET_MODULE_ID } from './constants'
 import { createContext } from './context'
+import { checkCrossWSVersion } from './prepare/crossws-version'
 import { prepareRuntime } from './prepare/runtime'
 import { prepareLayers } from './prepare/layers'
 import { setupHMR } from './dev/hotreload'
@@ -40,6 +41,9 @@ export default defineNuxtModule<NuxtEasyWebSocketModuleOptions>({
   },
   async setup(_options, _nuxt) {
     const ctx = createContext(_options)
+
+    await checkCrossWSVersion(ctx, _nuxt)
+
     prepareRuntime(ctx, _nuxt)
     await prepareLayers(ctx, _nuxt)
 

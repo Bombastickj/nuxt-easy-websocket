@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.1.1
+
+[compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.1.0...v4.1.1)
+
+### 🩹 Fixes
+
+- Warn on incompatible crossws versions ([f35f7bb](https://github.com/Bombastickj/nuxt-easy-websocket/commit/f35f7bb))
+
+### 🤖 CI
+
+- Remove unused release workflow ([2dfa9a4](https://github.com/Bombastickj/nuxt-easy-websocket/commit/2dfa9a4))
+
+### ❤️ Contributors
+
+- Jonazzzz <bombastickj@gmail.com>
+
 ## v4.1.0
 
 [compare changes](https://github.com/Bombastickj/nuxt-easy-websocket/compare/v4.0.0-alpha.5...v4.1.0)

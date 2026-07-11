@@ -13,4 +13,4 @@ export const MODULE_TMP_PATH = {
 } as const
 
 export const SCRIPT_EXT_RE = /\.(ts|js)$/i
-export const SERVER_CONN_BASENAME_RE = /^(open|close|error)\.(ts|js)$/i
+export const SERVER_CONN_BASENAME_RE = /^(open|close|error|upgrade)\.(ts|js)$/i

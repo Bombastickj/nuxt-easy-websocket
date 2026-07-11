@@ -1,3 +1,5 @@
+import http from 'node:http'
+import crypto from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import { setup, url, $fetch } from '@nuxt/test-utils/e2e'
@@ -11,6 +13,40 @@ interface Stats {
   connections: number
   disconnections: number
   errors: number
+}
+
+/** Performs a raw HTTP → WebSocket upgrade handshake so tests can inspect
+ *  rejection status codes, which the WHATWG `WebSocket` API hides. */
+function attemptUpgrade(
+  httpUrl: string,
+  headers: Record<string, string> = {},
+): Promise<{ upgraded: boolean, statusCode?: number }> {
+  return new Promise((resolve, reject) => {
+    const target = new URL(httpUrl)
+    const req = http.request({
+      hostname: target.hostname,
+      port: target.port,
+      path: target.pathname + target.search,
+      headers: {
+        Connection: 'Upgrade',
+        Upgrade: 'websocket',
+        'Sec-WebSocket-Key': crypto.randomBytes(16).toString('base64'),
+        'Sec-WebSocket-Version': '13',
+        ...headers,
+      },
+    })
+    req.on('upgrade', (res, socket) => {
+      socket.on('error', () => {})
+      socket.end()
+      resolve({ upgraded: true, statusCode: res.statusCode })
+    })
+    req.on('response', (res) => {
+      res.resume()
+      resolve({ upgraded: false, statusCode: res.statusCode })
+    })
+    req.on('error', reject)
+    req.end()
+  })
 }
 
 describe('websocket communication', async () => {
@@ -232,6 +268,20 @@ describe('websocket communication', async () => {
 
     expect(messages).toContain('_heartbeat')
     ws.close()
+  })
+
+  it('should reject WebSocket upgrades from a foreign Origin', async () => {
+    const result = await attemptUpgrade(url('/_ws'), {
+      Origin: 'https://evil.example.com',
+    })
+    expect(result.upgraded).toBe(false)
+    expect(result.statusCode).toBe(403)
+  })
+
+  it('should allow WebSocket upgrades with no Origin header (non-browser clients)', async () => {
+    const result = await attemptUpgrade(url('/_ws'))
+    expect(result.upgraded).toBe(true)
+    expect(result.statusCode).toBe(101)
   })
 
   it('should remain connected after handler error', async () => {

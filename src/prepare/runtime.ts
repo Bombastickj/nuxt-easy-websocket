@@ -57,6 +57,11 @@ export function prepareRuntime(ctx: NuxtEasyWebSocketContext, nuxt: Nuxt) {
       from: resolver.resolve('./runtime/server/composables/defineEasyWSEvent'),
     },
     {
+      name: 'defineEasyWSUpgrade',
+      as: 'defineEasyWSUpgrade',
+      from: resolver.resolve('./runtime/server/composables/defineEasyWSUpgrade'),
+    },
+    {
       name: 'EasyWSConnections',
       as: 'EasyWSConnections',
       from: resolver.resolve('./runtime/server/utils/EasyWSConnections'),

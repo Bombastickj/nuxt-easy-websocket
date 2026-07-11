@@ -17,6 +17,7 @@ A powerful Nuxt module providing seamless WebSocket integration with type-safe c
 - 🔍 **Type-safe messaging** between client and server
 - 🧩 **File-based routing** for WebSocket events
 - 🔌 **Connection lifecycle hooks** (open, close)
+- 🛡️ **Origin-checked upgrades** with a built-in same-origin default and an extensible `upgrade` hook for auth
 - 🛠️ **Simple API** for sending and receiving messages
 - 📦 **Binary event support** with named, file-routed binary messages
 - 🧵 **Raw WebSocket passthrough** for third-party protocols and unframed binary messages
@@ -65,6 +66,9 @@ export default defineNuxtConfig({
       
       // Whether to automatically reconnect when connection closes (default: true)
       reconnectOnClose: true,
+
+      // Reject WebSocket upgrades whose Origin header doesn't match the server's host (default: true)
+      originCheck: true,
     },
     
     // External WebSocket connections (optional)
@@ -104,6 +108,7 @@ The module uses a file-based routing system similar to Nitro Routes:
 │
 ├── 📁 server/
 │   ├── 📁 socket/                  # Server-side WebSocket handlers
+│   │   ├── 📄 upgrade.ts           # Upgrade request validation (origin/auth checks)
 │   │   ├── 📄 open.ts              # Connection opened event
 │   │   ├── 📄 close.ts             # Connection closed event
 │   │   └── 📁 api/                 # API endpoints for client-to-server communication
@@ -177,6 +182,35 @@ function sendExternalMessage() {
 ```
 
 ### Server-Side
+
+#### Validating Upgrade Requests
+
+WebSocket upgrades are not protected by the browser's same-origin policy, so by default the module rejects any upgrade whose `Origin` header doesn't match the server's `Host` header (set `ws.originCheck: false` to disable this). For additional checks — session/cookie auth, allow-listing origins, rate limiting by IP — add an `upgrade.ts` handler. It runs before `open`, so you can reject a connection before any socket is established.
+
+```ts
+// server/socket/upgrade.ts
+export default defineEasyWSUpgrade(async (request) => {
+  const origin = request.headers.get('origin')
+  if (origin && !['https://myapp.com'].includes(origin)) {
+    throw new Response(null, { status: 403, statusText: 'Forbidden' })
+  }
+
+  // Optionally attach data to the peer, available later via `peer.context`
+  const user = await validateSession(request)
+  if (!user) {
+    throw new Response(null, { status: 401, statusText: 'Unauthorized' })
+  }
+
+  return { context: { user } }
+})
+```
+
+The handler receives the raw `Request` object from the upgrade and can:
+
+- **Reject** the connection by throwing (or returning) a `Response`
+- **Allow** the connection by returning nothing
+- **Attach data to the peer** by returning `{ context }`, readable later via `peer.context`
+- **Add response headers** by returning `{ headers }`
 
 #### Defining Connection Handlers
 

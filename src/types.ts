@@ -31,6 +31,24 @@ export type NuxtEasyWebSocketConnectionOptions = {
   reconnectOnClose?: boolean
 
   /**
+   * Validate the `Origin` header on WebSocket upgrade requests.
+   *
+   * When `true` (the default), the module rejects upgrade requests whose
+   * `Origin` header does not match the server's host. This prevents
+   * Cross-Site WebSocket Hijacking (CSWSH) attacks where a malicious page
+   * opens a socket to your server using the visitor's cookies.
+   *
+   * Set to `false` to disable the built-in check (e.g. when connections
+   * come from non-browser clients or the check is handled at the proxy layer).
+   *
+   * For custom validation logic, leave this enabled and additionally create
+   * a `server/socket/upgrade.ts` file using `defineEasyWSUpgrade()`.
+   *
+   * @default true
+   */
+  originCheck?: boolean
+
+  /**
    * Add a heartbeat handler on the Server that terminates unalive connections
    */
   heartbeat?: {
@@ -81,7 +99,7 @@ export type NuxtEasyWebSocketModuleOptions = {
    */
   externalSockets?: Record<string, {
     url: string | null
-    ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat'>
+    ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat' | 'originCheck'>
   }>
 }
 

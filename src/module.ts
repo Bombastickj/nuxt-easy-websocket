@@ -33,6 +33,7 @@ export default defineNuxtModule<NuxtEasyWebSocketModuleOptions>({
       maxReconnectAttempts: 10,
       reconnectDelay: 5000,
       reconnectOnClose: true,
+      originCheck: true,
       heartbeat: {
         active: true,
         timeoutMs: 30_000,

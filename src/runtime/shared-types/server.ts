@@ -23,6 +23,23 @@ export interface EasyWSServerConnectionHandler<Peer = unknown> {
   (event: EasyWSServerConnection<Peer>): Promise<void> | void
 }
 
+// EasyWSServerUpgrade
+export interface EasyWSServerUpgradeResult {
+  /** Additional headers to include in the upgrade response. */
+  headers?: HeadersInit
+  /** Custom context attached to the peer, accessible via `peer.context`. */
+  context?: Record<string, unknown>
+}
+
+export interface EasyWSServerUpgradeHandler {
+  (request: Request): Promise<EasyWSServerUpgradeResult | Response | undefined> | EasyWSServerUpgradeResult | Response | undefined
+}
+
+export interface EasyWSServerUpgradeGenerated {
+  type: 'upgrade'
+  handler: EasyWSServerUpgradeHandler
+}
+
 // EasyWSServerEvent
 export interface EasyWSServerEvent<Peer, Request>
   extends EasyWSServerConnection<Peer> {

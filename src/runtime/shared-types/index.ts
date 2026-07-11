@@ -25,6 +25,9 @@ export type {
   EasyWSServerEventHandler,
   EasyWSServerEventGenerated,
   EasyWSServerConnectionGenerated,
+  EasyWSServerUpgradeResult,
+  EasyWSServerUpgradeHandler,
+  EasyWSServerUpgradeGenerated,
 } from './server'
 
 // Extend Peer with 'isAlive'

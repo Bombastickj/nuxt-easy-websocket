@@ -12,7 +12,9 @@ export default defineNuxtConfig({
       'external-test': {
         url: null, // We will set it dynamically in the test or keep it null if we just want to test the composable
         ws: {
-          autoConnect: false
+          autoConnect: false,
+          // This external connection targets the module's own /_ws endpoint.
+          heartbeat: { active: true }
         }
       }
     }

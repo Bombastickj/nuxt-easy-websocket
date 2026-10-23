@@ -21,13 +21,21 @@ export default defineNuxtPlugin((_nuxtApp) => {
     for (const [name, socketConfig] of Object.entries(configured)) {
       const mergedConfig = defu(
         socketConfig.ws,
+        // Third-party servers need not implement the _heartbeat protocol.
+        { heartbeat: { active: false } },
         defaultWSConfig,
       )
 
       externalSockets[name] = createWS(
         name,
         socketConfig.url,
-        mergedConfig,
+        {
+          ...mergedConfig,
+          heartbeat: {
+            ...mergedConfig.heartbeat,
+            clientTimeoutMs: mergedConfig.heartbeat.clientTimeoutMs ?? undefined,
+          },
+        },
       )
     }
   }

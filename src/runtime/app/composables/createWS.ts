@@ -3,7 +3,10 @@ import { onNuxtReady } from '#app'
 import { clientRoutes } from '#nuxt-easy-websocket/client'
 
 import type { EasyWSClientState, EasyWSRawPayload } from '../../shared-types'
-import { EASY_WS_RAW_BINARY_EVENT, EASY_WS_RAW_TEXT_EVENT } from '../../shared/events'
+import {
+  EASY_WS_RAW_BINARY_EVENT,
+  EASY_WS_RAW_TEXT_EVENT,
+} from '../../shared/events'
 import {
   createMessageEnvelope,
   tryParseMessageEnvelope,
@@ -38,9 +41,23 @@ export function createWS(
     heartbeat: {
       active: boolean
       timeoutMs: number
+      clientTimeoutMs?: number
     }
   },
 ) {
+  const { heartbeat } = config
+  const clientTimeoutMs = heartbeat.clientTimeoutMs === undefined
+    ? 2 * heartbeat.timeoutMs
+    : heartbeat.clientTimeoutMs
+
+  if (heartbeat.active && (!Number.isFinite(heartbeat.timeoutMs) || heartbeat.timeoutMs <= 0)) {
+    throw new Error(`[ClientSocket: ${socketName}]: heartbeat.timeoutMs must be a finite, positive number.`)
+  }
+  if ((heartbeat.active || heartbeat.clientTimeoutMs !== undefined)
+    && (!Number.isFinite(clientTimeoutMs) || !(clientTimeoutMs > heartbeat.timeoutMs))) {
+    throw new Error(`[ClientSocket: ${socketName}]: heartbeat.clientTimeoutMs must be finite and greater than heartbeat.timeoutMs (${heartbeat.timeoutMs}).`)
+  }
+
   // State management
   const state = ref<EasyWSClientState>({
     reconnectCountdown: null,
@@ -51,8 +68,8 @@ export function createWS(
   })
 
   // Computed properties for derived state
-  const maxReconnectAttemptsReached = computed(() =>
-    state.value.connectionAttempts >= config.maxReconnectAttempts,
+  const maxReconnectAttemptsReached = computed(
+    () => state.value.connectionAttempts >= config.maxReconnectAttempts,
   )
   const connectionStatus = computed(() => {
     switch (state.value.readyState) {
@@ -72,10 +89,12 @@ export function createWS(
   // Private variables for socket management
   let wsURL: string | (() => string) | null = url
   let socket: WebSocket | null = null
+  let detachSocketListeners: (() => void) | null = null
   let socketOpenPromise: Promise<void> | null = null
   let socketOpenResolve: (() => void) | null = null
   let socketOpenReject: ((reason?: unknown) => void) | null = null
   let countdownInterval: number | null = null
+  let heartbeatTimeout: ReturnType<typeof setTimeout> | null = null
   let manuallyClosed = false
 
   /**
@@ -90,21 +109,45 @@ export function createWS(
       socketOpenResolve = resolve
       socketOpenReject = reject
     })
+    // The resolver exists even when no send() is waiting. Awaiting the original
+    // promise still rejects, but idle connection failures must not be unhandled.
+    void socketOpenPromise.catch(() => {})
+  }
+
+  function clearHeartbeatTimeout() {
+    if (heartbeatTimeout === null) return
+    clearTimeout(heartbeatTimeout)
+    heartbeatTimeout = null
+  }
+
+  function resetHeartbeatTimeout() {
+    clearHeartbeatTimeout()
+    const currentSocket = socket
+    if (!heartbeat.active || manuallyClosed || !currentSocket) return
+
+    heartbeatTimeout = setTimeout(() => {
+      if (socket !== currentSocket) return
+      // Do not wait for a close event: a broken network may delay it indefinitely.
+      finalizeConnection(currentSocket, { code: 4000, reason: 'Heartbeat timeout' })
+      currentSocket.close(4000, 'Heartbeat timeout')
+    }, clientTimeoutMs)
   }
 
   function cleanupSocket() {
-    manuallyClosed = false
-
-    if (!socket) return
-    socket.removeEventListener('open', handleOpen)
-    socket.removeEventListener('close', handleClose)
-    socket.removeEventListener('error', handleError)
-    socket.removeEventListener('message', handleMessage)
+    clearHeartbeatTimeout()
+    detachSocketListeners?.()
+    detachSocketListeners = null
     socket = null
   }
 
+  function clearReconnectCountdown() {
+    if (countdownInterval !== null) clearInterval(countdownInterval)
+    countdownInterval = null
+    state.value.reconnectCountdown = null
+  }
+
   async function dispatchClientEvent(name: string, data: unknown) {
-    const eventModule = clientRoutes[socketName]?.find(e => e.name === name)
+    const eventModule = clientRoutes[socketName]?.find((e) => e.name === name)
 
     if (!eventModule) {
       const error = `Event not found: ${name}`
@@ -129,7 +172,9 @@ export function createWS(
    */
   function attemptReconnect() {
     if (maxReconnectAttemptsReached.value) {
-      console.error('[ClientSocket]: Max reconnection attempts reached. Giving up.')
+      console.error(
+        '[ClientSocket]: Max reconnection attempts reached. Giving up.',
+      )
       state.value.reconnectCountdown = null
       return
     }
@@ -142,42 +187,64 @@ export function createWS(
     countdownInterval = window.setInterval(() => {
       remaining -= 1
       if (remaining <= 0) {
-        if (countdownInterval !== null) clearInterval(countdownInterval)
-        state.value.reconnectCountdown = null
+        clearReconnectCountdown()
         state.value.connectionAttempts++
         initWebSocket()
-      }
-      else {
+      } else {
         state.value.reconnectCountdown = remaining
       }
     }, interval)
   }
 
   function initWebSocket() {
-    // check if socket is already connected
-    if (socket?.readyState === WS_STATES.OPEN) return
+    // Repeated connect() calls must not replace an active connection attempt.
+    if (socket?.readyState === WS_STATES.OPEN || socket?.readyState === WS_STATES.CONNECTING) return
 
     // cleanup any previous created socket
+    const previousSocket = socket
     cleanupSocket()
+    previousSocket?.close()
+    clearReconnectCountdown()
+    manuallyClosed = false
 
     // Prepare a new promise so that send() will wait until 'open'
     initResolver()
 
     // Check if wsURL is set
     if (typeof wsURL !== 'function' && !wsURL) {
-      throw new Error(`[ClientSocket]: Missing websocket url. Checkout your 'nuxt.config.ts' or use 'setURL()' before connecting.`)
+      throw new Error(
+        `[ClientSocket]: Missing websocket url. Checkout your 'nuxt.config.ts' or use 'setURL()' before connecting.`,
+      )
     }
 
     // console.log(`[ClientSocket]: Attempting to connect to ${resolvedURL}`)
     const resolvedURL = typeof wsURL === 'string' ? wsURL : wsURL()
-    socket = new WebSocket(resolvedURL)
+    const currentSocket = new WebSocket(resolvedURL)
+    socket = currentSocket
     socket.binaryType = 'arraybuffer'
     updateReadyState(socket.readyState)
 
-    socket.addEventListener('open', handleOpen)
-    socket.addEventListener('close', handleClose)
-    socket.addEventListener('error', handleError)
-    socket.addEventListener('message', handleMessage)
+    const onOpen = () => {
+      if (socket === currentSocket) handleOpen()
+    }
+    const onClose = (event: CloseEvent) => finalizeConnection(currentSocket, event)
+    const onError = (event: Event) => {
+      if (socket === currentSocket) handleError(event)
+    }
+    const onMessage = (event: MessageEvent) => {
+      if (socket === currentSocket) void handleMessage(event, currentSocket)
+    }
+
+    currentSocket.addEventListener('open', onOpen)
+    currentSocket.addEventListener('close', onClose)
+    currentSocket.addEventListener('error', onError)
+    currentSocket.addEventListener('message', onMessage)
+    detachSocketListeners = () => {
+      currentSocket.removeEventListener('open', onOpen)
+      currentSocket.removeEventListener('close', onClose)
+      currentSocket.removeEventListener('error', onError)
+      currentSocket.removeEventListener('message', onMessage)
+    }
   }
 
   /**
@@ -193,15 +260,21 @@ export function createWS(
     state.value.connectionAttempts = 0
     state.value.lastError = null
 
+    resetHeartbeatTimeout()
+
     // Resolve any pending send operations
     socketOpenResolve?.()
     socketOpenResolve = socketOpenReject = null
   }
 
   /**
-   * Handles WebSocket 'close' event
+   * Finalizes a connection once, whether or not a native close event arrives.
    */
-  function handleClose(event: CloseEvent) {
+  function finalizeConnection(source: WebSocket, event: Pick<CloseEvent, 'code' | 'reason'>) {
+    if (socket !== source) return
+    cleanupSocket()
+    clearReconnectCountdown()
+
     const closeMessage = `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'No reason provided'})`
     state.value.lastError = closeMessage
     updateReadyState(WS_STATES.CLOSED)
@@ -218,7 +291,8 @@ export function createWS(
    * Handles WebSocket 'error' event
    */
   function handleError(error: Event | ErrorEvent) {
-    const errorMessage = error instanceof ErrorEvent ? error.message : 'WebSocket connection error'
+    const errorMessage =
+      error instanceof ErrorEvent ? error.message : 'WebSocket connection error'
     state.value.lastError = errorMessage
 
     socketOpenReject?.(new Error(errorMessage))
@@ -234,30 +308,33 @@ export function createWS(
     }
 
     // raw binary message
-    await dispatchClientEvent(
-      EASY_WS_RAW_BINARY_EVENT,
-      toUint8ArraySync(data),
-    )
+    await dispatchClientEvent(EASY_WS_RAW_BINARY_EVENT, toUint8ArraySync(data))
   }
 
   /**
    * Handles incoming WebSocket messages
    */
-  async function handleMessage(message: MessageEvent) {
+  async function handleMessage(message: MessageEvent, source: WebSocket) {
     try {
       // _heartbeat functionality
       if (config.heartbeat.active && message.data === '_heartbeat') {
+        resetHeartbeatTimeout()
         socket?.send('_heartbeat')
         return
       }
 
-      if (message.data instanceof ArrayBuffer || ArrayBuffer.isView(message.data)) {
+      if (
+        message.data instanceof ArrayBuffer ||
+        ArrayBuffer.isView(message.data)
+      ) {
         await handleBinaryMessage(message.data)
         return
       }
 
       if (message.data instanceof Blob) {
-        await handleBinaryMessage(await message.data.arrayBuffer())
+        const data = await message.data.arrayBuffer()
+        if (socket !== source) return
+        await handleBinaryMessage(data)
         return
       }
 
@@ -277,9 +354,11 @@ export function createWS(
         `Unsupported WebSocket message payload: ${Object.prototype.toString.call(message.data)}`,
       )
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message
-        : 'Unknown error processing message'
+      if (socket !== source) return
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Unknown error processing message'
 
       console.error('[ClientSocket]: Error processing message:', errorMessage)
       state.value.lastError = errorMessage
@@ -330,28 +409,30 @@ export function createWS(
    * @param keepClosed if `true` prevents any automatic reconnects
    */
   function disconnect(keepClosed = false) {
-    if (countdownInterval !== null) {
-      clearInterval(countdownInterval)
-      countdownInterval = null
-    }
-
     // mark that we shouldn't auto-reconnect
     manuallyClosed = keepClosed
-
-    // close socket (triggers handleClose)
-    socket?.close()
+    const currentSocket = socket
+    if (currentSocket) {
+      finalizeConnection(currentSocket, { code: 1000, reason: 'Client disconnect' })
+      currentSocket.close()
+    }
+    else {
+      updateReadyState(WS_STATES.CLOSED)
+      if (keepClosed) clearReconnectCountdown()
+    }
   }
 
   /**
    * Forces a reconnection attempt regardless of current state
    */
   function forceReconnect() {
-    if (countdownInterval !== null) {
-      clearInterval(countdownInterval)
-      countdownInterval = null
-    }
-    state.value.reconnectCountdown = null
+    clearReconnectCountdown()
     state.value.connectionAttempts++
+
+    const previousSocket = socket
+    cleanupSocket()
+    previousSocket?.close()
+
     initWebSocket()
   }
 
@@ -366,7 +447,9 @@ export function createWS(
 
   // Initialize the plugin
   if (import.meta.client) initResolver()
-  onNuxtReady(config.autoConnect ? initWebSocket : () => { })
+  onNuxtReady(() => {
+    if (config.autoConnect && !manuallyClosed) initWebSocket()
+  })
 
   // Expose public API
   return {

@@ -3,6 +3,38 @@ import type { Resolver } from '@nuxt/kit'
 export * from './runtime/shared-types'
 
 /**
+ * Heartbeat configuration before module defaults are applied.
+ */
+export interface HeartbeatOptions {
+  /**
+   * Toggle heartbeat monitoring and replies. External sockets default to false.
+   * @default true
+   */
+  active?: boolean
+
+  /**
+   * Server heartbeat interval in milliseconds; must be finite and positive when active
+   * @default 30_000
+   */
+  timeoutMs?: number
+
+  /**
+   * Client deadline in milliseconds without a heartbeat. Must be finite and
+   * strictly greater than timeoutMs. Defaults to twice the resolved timeoutMs.
+   */
+  clientTimeoutMs?: number
+}
+
+/**
+ * Heartbeat configuration after module defaults are applied.
+ * clientTimeoutMs remains optional until derived for each socket.
+ */
+export interface ResolvedHeartbeatOptions extends HeartbeatOptions {
+  active: boolean
+  timeoutMs: number
+}
+
+/**
  * WebSocket connection configuration options
  */
 export type NuxtEasyWebSocketConnectionOptions = {
@@ -49,21 +81,16 @@ export type NuxtEasyWebSocketConnectionOptions = {
   originCheck?: boolean
 
   /**
-   * Add a heartbeat handler on the Server that terminates unalive connections
+   * Detect silent connection loss with server heartbeats and a client watchdog
    */
-  heartbeat?: {
-    /**
-     * Toggle the heartbeat functionality
-     * @default true
-     */
-    active?: boolean
+  heartbeat?: HeartbeatOptions
+}
 
-    /**
-     * Amount the server waits to check if peers are alive
-     * @default 30_000
-     */
-    timeoutMs?: number
-  }
+/**
+ * Connection configuration after module defaults are applied.
+ */
+export type ResolvedConnectionOptions = Required<Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat'>> & {
+  heartbeat: ResolvedHeartbeatOptions
 }
 
 /**
@@ -95,11 +122,12 @@ export type NuxtEasyWebSocketModuleOptions = {
   ws: NuxtEasyWebSocketConnectionOptions
 
   /**
-   * Add external websockets
+   * Add external websockets. Heartbeat monitoring is disabled unless explicitly
+   * enabled per socket; the external server must send the _heartbeat message.
    */
   externalSockets?: Record<string, {
     url: string | null
-    ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'heartbeat' | 'originCheck'>
+    ws?: Omit<NuxtEasyWebSocketConnectionOptions, 'originCheck'>
   }>
 }
 
@@ -206,20 +234,13 @@ export interface NuxtEasyWebSocketContext {
   serverConnection: RouteMap
 }
 
-/**
- * Internal helper
- */
-type DeepRequired<T> = {
-  [P in keyof T]-?: DeepRequired<T[P]>
-}
-
 export interface NuxtEasyWebSocketPublicRuntimeConfig {
   /**
    * Overwritten at build time, used to pass options to runtime
    *
    * @internal
    */
-  ws: DeepRequired<NuxtEasyWebSocketModuleOptions['ws']>
+  ws: ResolvedConnectionOptions
 
   /**
    * Overwritten at build time, used to pass options to runtime

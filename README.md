@@ -69,6 +69,13 @@ export default defineNuxtConfig({
 
       // Reject WebSocket upgrades whose Origin header doesn't match the server's host (default: true)
       originCheck: true,
+
+      heartbeat: {
+        active: true,
+        timeoutMs: 30_000, // Server heartbeat interval
+        // Optional: defaults to twice timeoutMs; must be greater than timeoutMs
+        clientTimeoutMs: 60_000,
+      },
     },
     
     // External WebSocket connections (optional)
@@ -85,6 +92,51 @@ export default defineNuxtConfig({
   }
 })
 ```
+
+### Heartbeats and Silent Connection Loss
+
+Heartbeat monitoring is enabled by default for the internal socket. The server sends the literal text message `_heartbeat` every `heartbeat.timeoutMs` milliseconds (default: `30_000`), and the client replies with the same message. The server terminates peers that do not respond by its next check.
+
+The client also watches for missing heartbeats. Its deadline starts when the connection opens and resets with each `_heartbeat` message; ordinary application messages do not reset it. If the deadline expires, the client immediately reports `disconnected`, records `Heartbeat timeout` with close code `4000`, and requests closure of the old socket. It does not wait for the browser's `close` event before applying `reconnectOnClose`, `reconnectDelay`, and `maxReconnectAttempts`.
+
+`heartbeat.clientTimeoutMs` is optional and defaults to twice the resolved `timeoutMs` (60 seconds with the default interval). An explicit deadline must be finite and **strictly greater** than `timeoutMs`; the interval must be finite and positive when monitoring is active. Invalid configuration throws an error identifying the socket. A longer client deadline tolerates more delayed heartbeats but takes longer to detect a silent connection loss. Browser suspension or timer throttling can delay detection beyond the configured deadline.
+
+```ts
+export default defineNuxtConfig({
+  easyWebSocket: {
+    ws: {
+      heartbeat: {
+        active: true,
+        timeoutMs: 30_000,
+        clientTimeoutMs: 90_000,
+      },
+    },
+  },
+})
+```
+
+External sockets have heartbeat monitoring **disabled by default**, because third-party servers may not implement this protocol. To enable it, configure `heartbeat.active: true` for that socket. The external server must send `_heartbeat` at the configured interval and accept the client's `_heartbeat` reply. WebSocket protocol Ping/Pong frames are separate from these text messages and do not reset this watchdog.
+
+```ts
+externalSockets: {
+  'another-easy-ws-server': {
+    url: 'wss://example.com/_ws',
+    ws: {
+      heartbeat: {
+        active: true,
+        timeoutMs: 15_000,
+        clientTimeoutMs: 45_000,
+      },
+    },
+  },
+}
+```
+
+External sockets inherit timing options from `ws.heartbeat` unless overridden. If no explicit client deadline is inherited or provided, it is calculated from that socket's resolved interval. An inherited explicit deadline must still be greater than any external interval override. Connections to another EasyWebSocket server should explicitly enable heartbeats so they reply to that server's liveness checks. Set `heartbeat.active: false` to disable both client monitoring and automatic heartbeat replies; for the internal socket this also disables the server heartbeat checks.
+
+`disconnect()` immediately reports `disconnected` and applies the automatic reconnect policy. Use `disconnect(true)` to stay disconnected and cancel a pending reconnect. Use `connect()` to resume, or `forceReconnect()` to replace the current connection immediately, without waiting for the old socket to close.
+
+Heartbeat recovery detects silent connection loss; it does not replay application messages or guarantee their delivery. Sends made while waiting for a connection still wait for it to open.
 
 ## Usage
 
